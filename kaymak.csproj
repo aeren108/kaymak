@@ -41,12 +41,16 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Camera.cs" />
-    <Compile Include="GameObject.cs" />
-    <Compile Include="Main.cs" />
-    <Compile Include="Map\Layer.cs" />
-    <Compile Include="Map\TiledMap.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Kaymak\Anim\Animation.cs" />
+    <Compile Include="Kaymak\Camera.cs" />
+    <Compile Include="Kaymak\Entities\Player.cs" />
+    <Compile Include="Kaymak\GameObject.cs" />
+    <Compile Include="Kaymak\Main.cs" />
+    <Compile Include="Kaymak\Map\Layer.cs" />
+    <Compile Include="Kaymak\Map\TiledMap.cs" />
+    <Compile Include="Kaymak\Program.cs" />
+    <Compile Include="Kaymak\Assets\SpriteSheet.cs" />
+    <Compile Include="Kaymak\World.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Content;
 namespace kaymak.Map {
     class TiledMap : GameObject {
         private JObject map;
+        private World world;
 
         public int Width, Height;
         public int SheetWidth, SheetHeight;
@@ -22,13 +23,13 @@ namespace kaymak.Map {
         public Texture2D SpriteSheet;
 
         private List<Layer> layers;
-        public int[] BlockedTiles;
-        public List<Rectangle> colBlocks;
+        public Rectangle[] Blocks;
         
-        public TiledMap(String path) {
+        public TiledMap(World world, String path) {
             map = JObject.Parse(json: File.ReadAllText(path));
             layers = new List<Layer>();
-            colBlocks = new List<Rectangle>();
+
+            this.world = world;
         }
         public void LoadContent(ContentManager content) {
             LoadMap();
@@ -45,7 +46,6 @@ namespace kaymak.Map {
 
             SpriteSheetPath = (string) map["spritesheet"];
             TileSize = (int) map["tileSize"];
-            BlockedTiles = ((JArray) map["blockedTiles"]).Select(c => (int) c).ToArray();
 
             JArray layerArray = (JArray) map["layers"];
             JObject[] layerObjects = layerArray.Select(c => (JObject) c).ToArray();
@@ -54,11 +54,12 @@ namespace kaymak.Map {
                 int[] tiles = layer["tiles"].Select(c => (int) c).ToArray();
                 bool isVisible = (bool) layer["isVisible"];
 
-                layers.Add(new Layer(this, tiles, isVisible));
+                layers.Add(new Layer(this, tiles, isVisible, world.Camera));
             }
 
             JArray colArray = (JArray) map["collisionObjects"];
             JObject[] rectObjects = colArray.Select(c => (JObject) c).ToArray();
+            List<Rectangle> colBlocks = new List<Rectangle>();
 
             foreach (var rectObject in rectObjects) {
                 int x = (int) rectObject["@x"];
@@ -69,9 +70,8 @@ namespace kaymak.Map {
                 colBlocks.Add(new Rectangle(x, y, width, height));
             }
 
-            colBlocks.ForEach(delegate (Rectangle r) {
-                Console.WriteLine(r.ToString());
-            });
+            Blocks = colBlocks.ToArray();
+            Console.WriteLine(Blocks == null);
         }
 
         public int GetTile(int x, int y) {
@@ -79,14 +79,14 @@ namespace kaymak.Map {
         }
 
         public void Render(SpriteBatch batch) {
-            foreach (var layer in layers) {
-                if (layer.isVisible)
-                    layer.Render(batch);
+            for (int i = 0; i < layers.Count; i++) {
+                if (layers[i].isVisible)
+                    layers[i].Render(batch);
             }
         }
 
         public void Update(GameTime gameTime) {
-
+            
         }
     }
 }
