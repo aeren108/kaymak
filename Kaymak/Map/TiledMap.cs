@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.Xna.Framework.Content;
+using kaymak.Map.Tiles;
 
 namespace kaymak.Map {
     class TiledMap : GameObject {
@@ -24,6 +23,8 @@ namespace kaymak.Map {
 
         private List<Layer> layers;
         public Rectangle[] Blocks;
+
+        Tile[] tiles = new Tile[1024];
         
         public TiledMap(World world, String path) {
             map = JObject.Parse(json: File.ReadAllText(path));
@@ -38,6 +39,9 @@ namespace kaymak.Map {
 
             SheetWidth = SpriteSheet.Width / TileSize;
             SheetHeight = SpriteSheet.Height / TileSize;
+
+            foreach (var layer in layers)
+                layer.LoadContent(content);
         }
 
         private void LoadMap() {

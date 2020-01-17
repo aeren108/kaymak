@@ -33,7 +33,7 @@ namespace kaymak {
 
         public void Render(SpriteBatch batch) {
             
-            batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null, Camera.Transform);
+            batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, null, null, null, Camera.Transform);
 
             Map.Render(batch);
             player.Render(batch);

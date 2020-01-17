@@ -9,7 +9,7 @@ namespace kaymak {
         static void Main()
         {
             using (var game = new Main())
-                game.Run();
+               game.Run();
         }
     }
 #endif

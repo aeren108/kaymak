@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using kaymak.Map.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,7 +23,7 @@ namespace kaymak.Map {
         }
 
         public void LoadContent(ContentManager content) {
-
+            Tile.tileSheet = map.SpriteSheet;
         }
 
         public int GetId(int x, int y) {
@@ -50,18 +47,14 @@ namespace kaymak.Map {
 
                     if (id == -1) continue;
 
-                    int x = id % map.SheetWidth * 32;
-                    int y = id / map.SheetHeight * 32;
-
                     tileRect.X = i * 32; tileRect.Y = j * 32;
                     camera.WorldPosition(ref origin);
 
                     cameraBound.X = (int) origin.X;
                     cameraBound.Y = (int) origin.Y;
-
-
+                    
                     if (tileRect.Intersects(cameraBound))
-                        batch.Draw(map.SpriteSheet, new Vector2(i * 32, j * 32), new Rectangle(x, y, 32, 32), Color.White, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f);
+                        new Tile(id, map.SpriteSheet).Render(batch, i , j);
                 }
             }
         }

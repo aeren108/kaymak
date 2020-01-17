@@ -9,7 +9,6 @@ namespace kaymak {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         World world;
-        TiledMap map;
 
         public Main() {
             graphics = new GraphicsDeviceManager(this);

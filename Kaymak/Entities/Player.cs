@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -40,15 +36,15 @@ namespace kaymak.Entities {
         }
 
         public void LoadContent(ContentManager content) {
-            sprite = content.Load<Texture2D>("player");
+            sprite = content.Load<Texture2D>("player2");
 
-            RightWalk = new Animation(90, 4, 32, 48, 0);
-            LeftWalk = new Animation(90, 4, 32, 48, 1);
-            IdleLeft = new Animation(200, 2, 32, 48, 2);
-            IdleRight = new Animation(200, 2, 32, 48, 3);
+            RightWalk = new Animation(75, 8, 64, 64, 1);
+            LeftWalk = new Animation(75, 8, 64, 64, 9);
+            IdleLeft = new Animation(150, 13, 64, 64, 8);
+            IdleRight = new Animation(150, 13, 64, 64, 0);
 
-            BoundBoxX = new Rectangle(0, 0, 32, 48);
-            BoundBoxY = new Rectangle(0, 0, 32, 48);
+            BoundBoxX = new Rectangle(0, 0, 16, 20);
+            BoundBoxY = new Rectangle(0, 0, 16, 20);
 
             CurAnim = IdleRight;
 
@@ -62,55 +58,34 @@ namespace kaymak.Entities {
         public void Update(GameTime gameTime) {
             KeyboardState state = Keyboard.GetState();
 
-            if (state.IsKeyDown(Keys.W)) {
+            if (state.IsKeyDown(Keys.W))
                 Direction.Y = -1;
-                if (CurAnim == IdleLeft) {
-                    CurAnim = LeftWalk;
-                } else if (CurAnim == IdleRight) {
-                    CurAnim = RightWalk;
-                }
-            } else if (state.IsKeyDown(Keys.S)) {
+            else if (state.IsKeyDown(Keys.S)) 
                 Direction.Y = 1;
-                if (CurAnim == IdleLeft) {
-                    CurAnim = LeftWalk;
-                } else if (CurAnim == IdleRight) {
-                    CurAnim = RightWalk;
-                }
-            } else {
+            else
                 Direction.Y = 0;
-            } if (state.IsKeyDown(Keys.A)) {
+            if (state.IsKeyDown(Keys.A)) 
                 Direction.X = -1;
-                CurAnim = LeftWalk;
-            } else if (state.IsKeyDown(Keys.D)) {
+            else if (state.IsKeyDown(Keys.D))
                 Direction.X = 1;
-                CurAnim = RightWalk;
-            } else {
+            else
                 Direction.X = 0;
-            }
 
-            if (Direction.X == 0 && Direction.Y == 0) {
-                if (CurAnim == LeftWalk) {
-                    CurAnim = IdleLeft;
-                } else if (CurAnim == RightWalk) {
-                    CurAnim = IdleRight;
-                }
-            } /*else
-                Direction.Normalize();*/
-            
-            Velocity = Direction * 5;
+            Velocity = Direction * 180 * (float) gameTime.ElapsedGameTime.TotalSeconds;
 
             HandleCollision();
+            SetAnimations();
 
             Position += Velocity;
             CurAnim.Update(gameTime);
         }
 
-        public void HandleCollision() {
-            BoundBoxX.X = (int) (Position + Velocity).X;
-            BoundBoxX.X = (int) Position.Y;
+        private void HandleCollision() {
+            BoundBoxX.X = (int) (Position + Velocity).X + 24;
+            BoundBoxX.Y = (int) Position.Y + 44;
 
-            BoundBoxX.X = (int) Position.X;
-            BoundBoxX.X = (int) (Position + Velocity).Y;
+            BoundBoxY.X = (int) Position.X + 24;
+            BoundBoxY.Y = (int) (Position + Velocity).Y + 44;
 
             Rectangle[] blocks = World.Map.Blocks;
 
@@ -121,6 +96,26 @@ namespace kaymak.Entities {
                     if (BoundBoxY.Intersects(blocks[i]))
                         Velocity.Y = 0;
                 }
+            }
+        }
+
+        private void SetAnimations() {
+            if (Direction.X == 1) {
+                CurAnim = RightWalk;
+            } else if (Direction.X == -1) {
+                CurAnim = LeftWalk;
+            } else {
+                if (Direction.Y == 0) {
+                    if (CurAnim == LeftWalk)
+                        CurAnim = IdleLeft;
+                    else if (CurAnim == RightWalk)
+                        CurAnim = IdleRight;
+                }
+            } if (Direction.Y == 1 || Direction.Y == -1) {
+                if (CurAnim == IdleLeft)
+                    CurAnim = LeftWalk;
+                else if (CurAnim == IdleRight)
+                    CurAnim = RightWalk;
             }
         }
     }
