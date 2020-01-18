@@ -3,11 +3,9 @@
 namespace Kaymak {
 #if WINDOWS || LINUX
 
-    public static class Program
-    {
+    public static class Program {
         [STAThread]
-        static void Main()
-        {
+        static void Main() {
             using (var game = new Main())
               game.Run();
         }

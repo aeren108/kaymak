@@ -14,8 +14,8 @@ namespace Kaymak {
             Content.RootDirectory = "Content";
             graphics.IsFullScreen = true;
             IsMouseVisible = true;
-            graphics.PreferredBackBufferWidth = 1920; //graphics.GraphicsDevice.Viewport.Width;
-            graphics.PreferredBackBufferHeight = 1080; //graphics.GraphicsDevice.Viewport.Width;
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
             graphics.ApplyChanges();
         }

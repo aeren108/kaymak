@@ -45,7 +45,8 @@ namespace Kaymak.Entities {
             IdleRight = new Animation(150, 4, 64, 64, 0);
 
             CurAnim = IdleRight;
-            FootStep.Volume = 0.1f;
+            FootStep.Volume = .1f;
+            FootStep.Pitch = .2f;
         }
 
         public void Render(SpriteBatch batch) {
