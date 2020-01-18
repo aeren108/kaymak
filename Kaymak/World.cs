@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using kaymak.Entities;
-using kaymak.Map;
+
+using Kaymak.Entities;
+using Kaymak.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 
-namespace kaymak {
+namespace Kaymak {
     class World : GameObject {
         public TiledMap Map;
         public Camera Camera;
@@ -17,26 +15,33 @@ namespace kaymak {
         private Player player;
 
         private GraphicsDevice graphics;
+        private Song gameTheme;
 
         public World(GraphicsDevice graphicsDevice) {
             this.graphics = graphicsDevice;
         }
 
         public void LoadContent(ContentManager content) {
-            Map = new TiledMap(this, "D:\\workspaces\\csharp_workspace\\kaymak\\kaymak\\Content\\map_demo.json");
+            Map = new TiledMap(this, content.RootDirectory + "/dungeon.json");
             Camera = new Camera(graphics);
             player = new Player(this);
 
             Map.LoadContent(content);
             player.LoadContent(content);
+            gameTheme = content.Load<Song>("gametheme");
+            MediaPlayer.Volume = 0.1f;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(gameTheme);
         }
 
         public void Render(SpriteBatch batch) {
             
             batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, null, null, null, Camera.Transform);
 
-            Map.Render(batch);
+            Map.Layers[0].Render(batch);
+            Map.Layers[2].Render(batch);
             player.Render(batch);
+            Map.Layers[1].Render(batch);
 
             batch.End();
         }

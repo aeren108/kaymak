@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kaymak {
+namespace Kaymak {
     class Camera {
         public float Zoom = 1.0f;
         public float Rotation = 0.0f;

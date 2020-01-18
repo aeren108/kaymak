@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace kaymak {
+namespace Kaymak {
 #if WINDOWS || LINUX
 
     public static class Program
@@ -9,7 +9,7 @@ namespace kaymak {
         static void Main()
         {
             using (var game = new Main())
-               game.Run();
+              game.Run();
         }
     }
 #endif

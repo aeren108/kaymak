@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kaymak.Map.Tiles {
+namespace Kaymak.Map.Tiles {
     public class Tile {
         public static Texture2D tileSheet;
         protected int id;
@@ -22,8 +22,8 @@ namespace kaymak.Map.Tiles {
             this.id = id;
             Tile.tileSheet = tileSheet;
 
-            x = id % 32;
-            y = id / 32;
+            x = id % 8;
+            y = id / 8;
 
             sourceRectangle = new Rectangle(x * 32, y * 32, 32, 32);
             boundRectangle = new Rectangle(0, 0, 32, 32);

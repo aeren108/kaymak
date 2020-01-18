@@ -7,9 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.Xna.Framework.Content;
-using kaymak.Map.Tiles;
+using Kaymak.Map.Tiles;
 
-namespace kaymak.Map {
+namespace Kaymak.Map {
     class TiledMap : GameObject {
         private JObject map;
         private World world;
@@ -21,30 +21,29 @@ namespace kaymak.Map {
 
         public Texture2D SpriteSheet;
 
-        private List<Layer> layers;
+        public List<Layer> Layers;
         public Rectangle[] Blocks;
-
-        Tile[] tiles = new Tile[1024];
+        public List<int> BlockedTiles;
         
         public TiledMap(World world, String path) {
             map = JObject.Parse(json: File.ReadAllText(path));
-            layers = new List<Layer>();
+            Layers = new List<Layer>();
 
             this.world = world;
         }
         public void LoadContent(ContentManager content) {
-            LoadMap();
+            ParseMap();
 
             SpriteSheet = content.Load<Texture2D>(SpriteSheetPath);
 
             SheetWidth = SpriteSheet.Width / TileSize;
             SheetHeight = SpriteSheet.Height / TileSize;
 
-            foreach (var layer in layers)
+            foreach (var layer in Layers)
                 layer.LoadContent(content);
         }
 
-        private void LoadMap() {
+        private void ParseMap() {
             Width = (int) map["width"];
             Height = (int) map["height"];
 
@@ -58,34 +57,45 @@ namespace kaymak.Map {
                 int[] tiles = layer["tiles"].Select(c => (int) c).ToArray();
                 bool isVisible = (bool) layer["isVisible"];
 
-                layers.Add(new Layer(this, tiles, isVisible, world.Camera));
+                Layers.Add(new Layer(this, tiles, isVisible, world.Camera));
             }
+
+            JArray blockedTiles = (JArray) map["blockedTiles"];
+            BlockedTiles = blockedTiles.Select(c => (int) c).ToList();
 
             JArray colArray = (JArray) map["collisionObjects"];
             JObject[] rectObjects = colArray.Select(c => (JObject) c).ToArray();
             List<Rectangle> colBlocks = new List<Rectangle>();
 
             foreach (var rectObject in rectObjects) {
-                int x = (int) rectObject["@x"];
-                int y = (int) rectObject["@y"];
-                int width = (int) rectObject["@width"];
-                int height = (int) rectObject["@height"];
+                int x = (int) rectObject["x"];
+                int y = (int) rectObject["y"];
+                int width = (int) rectObject["width"];
+                int height = (int) rectObject["height"];
 
                 colBlocks.Add(new Rectangle(x, y, width, height));
             }
 
             Blocks = colBlocks.ToArray();
-            Console.WriteLine(Blocks == null);
         }
 
         public int GetTile(int x, int y) {
-            return layers[layers.Count - 1].GetId(x, y);
+            return Layers[Layers.Count - 1].GetId(x, y);
+        }
+
+        public bool IsBlocked(int x, int y) {
+            foreach (var layer in Layers) {
+                if (layer.IsBlocked(x, y))
+                    return true;
+            }
+
+            return false;
         }
 
         public void Render(SpriteBatch batch) {
-            for (int i = 0; i < layers.Count; i++) {
-                if (layers[i].isVisible)
-                    layers[i].Render(batch);
+            for (int i = 0; i < Layers.Count; i++) {
+                if (Layers[i].isVisible)
+                    Layers[i].Render(batch);
             }
         }
 

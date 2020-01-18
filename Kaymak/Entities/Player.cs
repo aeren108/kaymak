@@ -3,52 +3,49 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-using kaymak.Anim;
+using Kaymak.Anim;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
-namespace kaymak.Entities {
+namespace Kaymak.Entities {
     class Player : GameObject {
         public Vector2 Position;
 
         private Vector2 Velocity;
         private Vector2 Direction;
 
-        private Rectangle BoundBoxX;
-        private Rectangle BoundBoxY;
-
         private World World;
 
-        Texture2D sprite;
+        private Texture2D sprite;
 
-        Animation RightWalk;
-        Animation LeftWalk;
-        Animation IdleLeft;
-        Animation IdleRight;
+        private Animation RightWalk;
+        private Animation LeftWalk;
+        private Animation IdleLeft;
+        private Animation IdleRight;
 
-        Animation CurAnim;
+        private Animation CurAnim;
+
+        private SoundEffectInstance FootStep;
 
         public Player(World world) {
             this.World = world;
 
-            Position = new Vector2(0, 0);
+            Position = new Vector2(130, 150);
             Velocity = new Vector2(0, 0);
             Direction = new Vector2(0, 0);
         }
 
         public void LoadContent(ContentManager content) {
-            sprite = content.Load<Texture2D>("player2");
+            sprite = content.Load<Texture2D>("cat_fighter");
+            FootStep = content.Load<SoundEffect>("footsteps").CreateInstance();
 
-            RightWalk = new Animation(75, 8, 64, 64, 1);
-            LeftWalk = new Animation(75, 8, 64, 64, 9);
-            IdleLeft = new Animation(150, 13, 64, 64, 8);
-            IdleRight = new Animation(150, 13, 64, 64, 0);
-
-            BoundBoxX = new Rectangle(0, 0, 16, 20);
-            BoundBoxY = new Rectangle(0, 0, 16, 20);
+            RightWalk = new Animation(75, 8, 64, 64, 2);
+            LeftWalk = new Animation(75, 8, 64, 64, 3);
+            IdleLeft = new Animation(150, 4, 64, 64, 1);
+            IdleRight = new Animation(150, 4, 64, 64, 0);
 
             CurAnim = IdleRight;
-
-            Console.WriteLine(Position.ToString());
+            FootStep.Volume = 0.1f;
         }
 
         public void Render(SpriteBatch batch) {
@@ -75,27 +72,36 @@ namespace kaymak.Entities {
 
             HandleCollision();
             SetAnimations();
+            HandleSound();
 
             Position += Velocity;
             CurAnim.Update(gameTime);
         }
 
         private void HandleCollision() {
-            BoundBoxX.X = (int) (Position + Velocity).X + 24;
-            BoundBoxX.Y = (int) Position.Y + 44;
+            bool blockedX = false;
+            bool blockedY = false;
 
-            BoundBoxY.X = (int) Position.X + 24;
-            BoundBoxY.Y = (int) (Position + Velocity).Y + 44;
+            if (Direction.X == 1) {
+                blockedX = World.Map.IsBlocked((int) (Position + Velocity).X + 38, (int) (Position).Y + 38);
+            } else if (Direction.X == -1) {
+                blockedX = World.Map.IsBlocked((int) (Position + Velocity).X + 24, (int) (Position).Y + 38);
+            } if (Direction.Y == 1) {
+                blockedY = World.Map.IsBlocked((int) (Position).X + 24, (int) (Position + Velocity).Y + 50);
+            } else if (Direction.Y == -1) {
+                blockedY = World.Map.IsBlocked((int) (Position).X + 24, (int) (Position + Velocity).Y + 38);
+            }
 
-            Rectangle[] blocks = World.Map.Blocks;
+            if (blockedX) Velocity.X = 0;
+            if (blockedY) Velocity.Y = 0;
+        }
 
-            if (blocks != null) {
-                for (int i = 0; i < blocks.Length; i++) {
-                    if (BoundBoxX.Intersects(blocks[i]))
-                        Velocity.X = 0;
-                    if (BoundBoxY.Intersects(blocks[i]))
-                        Velocity.Y = 0;
-                }
+        private void HandleSound() {
+            if (Velocity.X != 0 || Velocity.Y != 0) {
+                if (FootStep.State != SoundState.Playing)
+                    FootStep.Play();
+            } else {
+                FootStep.Stop();
             }
         }
 

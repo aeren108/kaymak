@@ -1,12 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace kaymak.Map.Tiles {
+using System;
+
+namespace Kaymak.Map.Tiles {
     class AnimatedTile : Tile {
         private Tile[] tiles;
         private double delay;

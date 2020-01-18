@@ -1,10 +1,9 @@
-﻿using kaymak.Map;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 
-namespace kaymak {
+namespace Kaymak {
     public class Main : Game {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -13,10 +12,10 @@ namespace kaymak {
         public Main() {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            //graphics.IsFullScreen = true;
+            graphics.IsFullScreen = true;
             IsMouseVisible = true;
-            graphics.PreferredBackBufferWidth = 800;
-            graphics.PreferredBackBufferHeight = 640;
+            graphics.PreferredBackBufferWidth = 1920; //graphics.GraphicsDevice.Viewport.Width;
+            graphics.PreferredBackBufferHeight = 1080; //graphics.GraphicsDevice.Viewport.Width;
 
             graphics.ApplyChanges();
         }
