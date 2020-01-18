@@ -47,23 +47,23 @@ namespace Kaymak.Map {
         }
 
         public void Render(SpriteBatch batch) {
-            for (int j = 0; j < 64; j++) {
-                for (int i = 0; i < 48; i++) {
+            for (int x = 0; x < map.Width; x++) {
+                for (int y = 0; y < map.Height; y++) {
                     origin = Vector2.Zero;
 
-                    int index = j + i * 64;
+                    int index = x + y * map.Width;
                     int id = tiles[index]-1;
 
                     if (id == -1) continue;
 
-                    tileRect.X = j * 32; tileRect.Y = i * 32;
+                    tileRect.X = x * map.TileSize; tileRect.Y = y * map.TileSize;
                     camera.WorldPosition(ref origin);
 
                     cameraBound.X = (int) origin.X;
                     cameraBound.Y = (int) origin.Y;
                     
                     if (tileRect.Intersects(cameraBound))
-                        Tile.GetTile(id).Render(batch, j , i);
+                        Tile.GetTile(id).Render(batch, x, y);
                 }
             }
         }
