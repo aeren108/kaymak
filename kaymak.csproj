@@ -43,6 +43,9 @@
   <ItemGroup>
     <Compile Include="Kaymak\Anim\Animation.cs" />
     <Compile Include="Kaymak\Camera.cs" />
+    <Compile Include="Kaymak\Entities\Entity.cs" />
+    <Compile Include="Kaymak\Entities\EntityType.cs" />
+    <Compile Include="Kaymak\Entities\Fireball.cs" />
     <Compile Include="Kaymak\Entities\Player.cs" />
     <Compile Include="Kaymak\GameObject.cs" />
     <Compile Include="Kaymak\Main.cs" />

@@ -8,15 +8,9 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 
 namespace Kaymak.Entities {
-    class Player : GameObject {
-        public Vector2 Position;
-
+    class Player : Entity {
         private Vector2 Velocity;
         private Vector2 Direction;
-
-        private World World;
-
-        private Texture2D sprite;
 
         private Animation RightWalk;
         private Animation LeftWalk;
@@ -26,16 +20,17 @@ namespace Kaymak.Entities {
         private Animation CurAnim;
 
         private SoundEffectInstance FootStep;
+        private float velPerSecond = 180f;
 
-        public Player(World world) {
-            this.World = world;
+        public Player(World world) : base(world, EntityType.PLAYER) {
+            this.world = world;
 
             Position = new Vector2(130, 150);
             Velocity = new Vector2(0, 0);
             Direction = new Vector2(0, 0);
         }
 
-        public void LoadContent(ContentManager content) {
+        public override void LoadContent(ContentManager content) {
             sprite = content.Load<Texture2D>("cat_fighter");
             FootStep = content.Load<SoundEffect>("footsteps").CreateInstance();
 
@@ -46,14 +41,14 @@ namespace Kaymak.Entities {
 
             CurAnim = IdleRight;
             FootStep.Volume = .2f;
-            FootStep.Pitch = .15f;
+            FootStep.Pitch = .1f;
         }
 
-        public void Render(SpriteBatch batch) {
+        public override void Render(SpriteBatch batch) {
             batch.Draw(sprite, Position, CurAnim.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f);
         }
 
-        public void Update(GameTime gameTime) {
+        public override void Update(GameTime gameTime) {
             KeyboardState state = Keyboard.GetState();
 
             if (state.IsKeyDown(Keys.W))
@@ -69,35 +64,35 @@ namespace Kaymak.Entities {
             else
                 Direction.X = 0;
 
-            Velocity = Direction * 180 * (float) gameTime.ElapsedGameTime.TotalSeconds;
+            Velocity = Direction * velPerSecond * (float) gameTime.ElapsedGameTime.TotalSeconds;
 
-            HandleCollision();
+            HandleTileCollision();
+            HandleSoundEffects();
             SetAnimations();
-            HandleSound();
-
+            
             Position += Velocity;
             CurAnim.Update(gameTime);
         }
 
-        private void HandleCollision() {
+        private void HandleTileCollision() {
             bool blockedX = false;
             bool blockedY = false;
 
             if (Direction.X == 1) {
-                blockedX = World.Map.IsBlocked((int) (Position + Velocity).X + 38, (int) (Position).Y + 38);
+                blockedX = world.Map.IsBlocked((int) (Position + Velocity).X + 38, (int) (Position).Y + 38);
             } else if (Direction.X == -1) {
-                blockedX = World.Map.IsBlocked((int) (Position + Velocity).X + 24, (int) (Position).Y + 38);
+                blockedX = world.Map.IsBlocked((int) (Position + Velocity).X + 24, (int) (Position).Y + 38);
             } if (Direction.Y == 1) {
-                blockedY = World.Map.IsBlocked((int) (Position).X + 24, (int) (Position + Velocity).Y + 50);
+                blockedY = world.Map.IsBlocked((int) (Position).X + 24, (int) (Position + Velocity).Y + 50);
             } else if (Direction.Y == -1) {
-                blockedY = World.Map.IsBlocked((int) (Position).X + 24, (int) (Position + Velocity).Y + 38);
+                blockedY = world.Map.IsBlocked((int) (Position).X + 24, (int) (Position + Velocity).Y + 38);
             }
 
             if (blockedX) Velocity.X = 0;
             if (blockedY) Velocity.Y = 0;
         }
 
-        private void HandleSound() {
+        private void HandleSoundEffects() {
             if (Velocity.X != 0 || Velocity.Y != 0) {
                 if (FootStep.State != SoundState.Playing)
                     FootStep.Play();

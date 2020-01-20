@@ -12,6 +12,7 @@ using Kaymak.Map.Tiles;
 namespace Kaymak.Map {
     class TiledMap : GameObject {
         private JObject map;
+        private String path;
         private World world;
 
         public int Width, Height;
@@ -21,17 +22,19 @@ namespace Kaymak.Map {
 
         public Texture2D SpriteSheet;
 
-        public List<Layer> Layers;
+        private List<Layer> Layers;
         public Rectangle[] Blocks;
         public List<int> BlockedTiles;
         
         public TiledMap(World world, String path) {
-            map = JObject.Parse(json: File.ReadAllText(path));
-            Layers = new List<Layer>();
-
+            this.path = path;
             this.world = world;
+
+            Layers = new List<Layer>();
         }
         public void LoadContent(ContentManager content) {
+            map = JObject.Parse(json: File.ReadAllText(content.RootDirectory + path));
+
             ParseMap();
 
             SpriteSheet = content.Load<Texture2D>(SpriteSheetPath);
@@ -88,7 +91,6 @@ namespace Kaymak.Map {
                 if (layer.IsBlocked(x, y))
                     return true;
             }
-
             return false;
         }
 
@@ -99,8 +101,12 @@ namespace Kaymak.Map {
             }
         }
 
+        public void Render(SpriteBatch batch, int i) {
+            Layers[i].Render(batch);
+        }
+
         public void Update(GameTime gameTime) {
-            
+            // TODO: Update for animated tiles
         }
     }
 }

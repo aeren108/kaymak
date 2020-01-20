@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using Kaymak.Entities;
 using Kaymak.Map;
 using Microsoft.Xna.Framework;
@@ -13,7 +13,8 @@ namespace Kaymak {
         public TiledMap Map;
         public Camera Camera;
 
-        private Player player;
+        private List<Entity> entities;
+        private Entity player;
 
         private GraphicsDevice graphics;
         private Song gameTheme;
@@ -22,15 +23,19 @@ namespace Kaymak {
 
         public World(GraphicsDevice graphicsDevice) {
             this.graphics = graphicsDevice;
+
+            entities = new List<Entity>();
         }
 
         public void LoadContent(ContentManager content) {
-            Map = new TiledMap(this, content.RootDirectory + "/dungeon.json");
+            Map = new TiledMap(this, "/dungeon.json");
             Camera = new Camera(graphics);
             player = new Player(this);
 
             Map.LoadContent(content);
             player.LoadContent(content);
+            entities.Add(player);
+
             gameTheme = content.Load<Song>("gametheme");
             MediaPlayer.Volume = 0.05f;
             MediaPlayer.IsRepeating = true;
@@ -38,13 +43,14 @@ namespace Kaymak {
         }
 
         public void Render(SpriteBatch batch) {
-            
             batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, null, null, null, Camera.Transform);
 
-            Map.Layers[0].Render(batch);
-            Map.Layers[2].Render(batch);
-            player.Render(batch);
-            Map.Layers[1].Render(batch);
+            Map.Render(batch, 0);
+
+            entities.ForEach((Entity e) => e.Render(batch));
+
+            Map.Render(batch, 1);
+            Map.Render(batch, 2);
 
             batch.End();
         }
@@ -75,13 +81,12 @@ namespace Kaymak {
             if (MediaPlayer.Volume < 0) MediaPlayer.Volume = 0;
             else if (MediaPlayer.Volume > 1) MediaPlayer.Volume = 1;
 
-            if (MediaPlayer.Volume == 0 && MediaPlayer.State == MediaState.Playing) {
+            if (MediaPlayer.Volume == 0 && MediaPlayer.State == MediaState.Playing) 
                 MediaPlayer.Pause();
-            } else if (MediaPlayer.Volume != 0 && MediaPlayer.State == MediaState.Paused) {
+            else if (MediaPlayer.Volume != 0 && MediaPlayer.State == MediaState.Paused)
                 MediaPlayer.Resume();
-            }
 
-            player.Update(gameTime);
+            entities.ForEach((Entity e) => e.Update(gameTime));
             Camera.Update();
         }
     }
