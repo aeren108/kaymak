@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 
 namespace Kaymak {
@@ -9,6 +10,7 @@ namespace Kaymak {
         SpriteBatch spriteBatch;
         World world;
 
+        SpriteFont font;
         public Main() {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -31,6 +33,8 @@ namespace Kaymak {
             world = new World(graphics.GraphicsDevice);
             world.LoadContent(Content);
 
+            font = Content.Load<SpriteFont>("font");
+
             base.LoadContent();
         }
 
@@ -52,6 +56,12 @@ namespace Kaymak {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             world.Render(spriteBatch);
+
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(font, "Volume: " + (MediaPlayer.Volume * 100).ToString("0.0"), Vector2.Zero, Color.White);
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }

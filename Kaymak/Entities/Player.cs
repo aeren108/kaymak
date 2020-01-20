@@ -39,14 +39,14 @@ namespace Kaymak.Entities {
             sprite = content.Load<Texture2D>("cat_fighter");
             FootStep = content.Load<SoundEffect>("footsteps").CreateInstance();
 
-            RightWalk = new Animation(75, 8, 64, 64, 2);
-            LeftWalk = new Animation(75, 8, 64, 64, 3);
-            IdleLeft = new Animation(150, 4, 64, 64, 1);
-            IdleRight = new Animation(150, 4, 64, 64, 0);
+            RightWalk = new Animation(70, 8, 64, 64, 2);
+            LeftWalk = new Animation(70, 8, 64, 64, 3);
+            IdleLeft = new Animation(120, 4, 64, 64, 1);
+            IdleRight = new Animation(120, 4, 64, 64, 0);
 
             CurAnim = IdleRight;
-            FootStep.Volume = .1f;
-            FootStep.Pitch = .2f;
+            FootStep.Volume = .2f;
+            FootStep.Pitch = .15f;
         }
 
         public void Render(SpriteBatch batch) {

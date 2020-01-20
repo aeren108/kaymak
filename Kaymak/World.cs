@@ -5,6 +5,7 @@ using Kaymak.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace Kaymak {
@@ -16,6 +17,8 @@ namespace Kaymak {
 
         private GraphicsDevice graphics;
         private Song gameTheme;
+
+        private int prevScroll = 0;
 
         public World(GraphicsDevice graphicsDevice) {
             this.graphics = graphicsDevice;
@@ -29,7 +32,7 @@ namespace Kaymak {
             Map.LoadContent(content);
             player.LoadContent(content);
             gameTheme = content.Load<Song>("gametheme");
-            MediaPlayer.Volume = 0.1f;
+            MediaPlayer.Volume = 0.05f;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(gameTheme);
         }
@@ -47,8 +50,9 @@ namespace Kaymak {
         }
 
         public void Update(GameTime gameTime) {
+            MouseState state = Mouse.GetState();
+
             Camera.Pos = player.Position;
-            //Console.WriteLine(player.Position.ToString());
 
             if (Camera.Pos.X < graphics.Viewport.Width / 2) {
                 Camera.Pos.X = graphics.Viewport.Width / 2;
@@ -59,6 +63,22 @@ namespace Kaymak {
                 Camera.Pos.Y = graphics.Viewport.Height / 2;
             } else if (Camera.Pos.Y > Map.Height * Map.TileSize - graphics.Viewport.Height / 2) {
                 Camera.Pos.Y = Map.Height * Map.TileSize - graphics.Viewport.Height / 2;
+            }
+
+            if (state.ScrollWheelValue < prevScroll)
+                MediaPlayer.Volume -= .1f;
+            else if (state.ScrollWheelValue > prevScroll)
+                MediaPlayer.Volume += .1f;
+
+            prevScroll = state.ScrollWheelValue;
+
+            if (MediaPlayer.Volume < 0) MediaPlayer.Volume = 0;
+            else if (MediaPlayer.Volume > 1) MediaPlayer.Volume = 1;
+
+            if (MediaPlayer.Volume == 0 && MediaPlayer.State == MediaState.Playing) {
+                MediaPlayer.Pause();
+            } else if (MediaPlayer.Volume != 0 && MediaPlayer.State == MediaState.Paused) {
+                MediaPlayer.Resume();
             }
 
             player.Update(gameTime);
