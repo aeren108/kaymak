@@ -4,18 +4,19 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace Kaymak.Map.Tiles {
-    public class Tile {
+    public class Tile : GameObject {
+        public Vector2 Position;
         public static Texture2D tileSheet;
-        protected int id;
+        protected int id = 0;
         protected int x, y;
+        public bool IsSolid;
 
         public Rectangle sourceRectangle;
+        public Rectangle boundBox;
 
-        public static Tile[] tiles = new Tile[1024];
-
-        public Tile(int id, Texture2D tileSheet) {
+        public Tile(Vector2 pos, int id) {
             this.id = id;
-            Tile.tileSheet = tileSheet;
+            this.Position = pos * 32;
 
             x = id % 8;
             y = id / 8;
@@ -23,20 +24,20 @@ namespace Kaymak.Map.Tiles {
             sourceRectangle = new Rectangle(x * 32, y * 32, 32, 32);
         }
 
-        public virtual void Render(SpriteBatch batch, int x, int y) {
-            batch.Draw(tileSheet, new Vector2(x * 32, y * 32), sourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f);
-        }
-        
-        public static Tile GetTile(int id) {
-            if (tiles[id] != null)
-                return tiles[id];
-
-            tiles[id] = new Tile(id, Tile.tileSheet);
-            return tiles[id];
+        public virtual void Render(SpriteBatch batch) {
+            batch.Draw(tileSheet, Position, sourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f); ;
         }
 
         public virtual void Update(GameTime gameTime) {
+            /* tile logic in here;
+             
+            timer += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (timer >= 1900)
+                timer = 0;
 
+            */
         }
+
+        public void LoadContent() { }
     }
 }

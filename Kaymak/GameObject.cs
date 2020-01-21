@@ -5,7 +5,7 @@ using System;
 
 namespace Kaymak {
     interface GameObject {
-        void LoadContent(ContentManager content);
+        void LoadContent();
         void Update(GameTime gameTime);
         void Render(SpriteBatch batch);
     }

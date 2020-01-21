@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Kaymak.Entities;
 using Kaymak.Map;
+using static Kaymak.Main;
+
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -13,13 +15,14 @@ namespace Kaymak {
         public TiledMap Map;
         public Camera Camera;
 
-        private List<Entity> entities;
+        public List<Entity> entities;
         private Entity player;
 
         private GraphicsDevice graphics;
         private Song gameTheme;
 
         private int prevScroll = 0;
+        private double demoTimer = 0;
 
         public World(GraphicsDevice graphicsDevice) {
             this.graphics = graphicsDevice;
@@ -27,16 +30,16 @@ namespace Kaymak {
             entities = new List<Entity>();
         }
 
-        public void LoadContent(ContentManager content) {
+        public void LoadContent() {
             Map = new TiledMap(this, "/dungeon.json");
             Camera = new Camera(graphics);
             player = new Player(this);
 
-            Map.LoadContent(content);
-            player.LoadContent(content);
+            Map.LoadContent();
+            player.LoadContent();
             entities.Add(player);
 
-            gameTheme = content.Load<Song>("gametheme");
+            gameTheme = CM.Load<Song>("gametheme");
             MediaPlayer.Volume = 0.05f;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(gameTheme);
@@ -47,7 +50,9 @@ namespace Kaymak {
 
             Map.Render(batch, 0);
 
-            entities.ForEach((Entity e) => e.Render(batch));
+            for (int i = 0; i < entities.Count; i++) {
+                entities[i].Render(batch);
+            }
 
             Map.Render(batch, 1);
             Map.Render(batch, 2);
@@ -59,12 +64,14 @@ namespace Kaymak {
             MouseState state = Mouse.GetState();
 
             Camera.Pos = player.Position;
+            demoTimer += gameTime.ElapsedGameTime.TotalSeconds;
 
             if (Camera.Pos.X < graphics.Viewport.Width / 2) {
                 Camera.Pos.X = graphics.Viewport.Width / 2;
             } else if (Camera.Pos.X > Map.Width * Map.TileSize - graphics.Viewport.Width / 2) {
                 Camera.Pos.X = Map.Width * Map.TileSize - graphics.Viewport.Width / 2;
             }
+
             if (Camera.Pos.Y < graphics.Viewport.Height / 2) {
                 Camera.Pos.Y = graphics.Viewport.Height / 2;
             } else if (Camera.Pos.Y > Map.Height * Map.TileSize - graphics.Viewport.Height / 2) {
@@ -72,9 +79,9 @@ namespace Kaymak {
             }
 
             if (state.ScrollWheelValue < prevScroll)
-                MediaPlayer.Volume -= .1f;
+                MediaPlayer.Volume -= .05f;
             else if (state.ScrollWheelValue > prevScroll)
-                MediaPlayer.Volume += .1f;
+                MediaPlayer.Volume += .05f;
 
             prevScroll = state.ScrollWheelValue;
 
@@ -86,8 +93,37 @@ namespace Kaymak {
             else if (MediaPlayer.Volume != 0 && MediaPlayer.State == MediaState.Paused)
                 MediaPlayer.Resume();
 
-            entities.ForEach((Entity e) => e.Update(gameTime));
-            Camera.Update();
+            //generating fireballs every 0.1 seconds
+            if (demoTimer >= 0.1f) {
+                demoTimer = 0;
+
+                for (int i = 0; i < 2; i++) {
+                    Fireball fb = new Fireball(this);
+                    fb.LoadContent();
+
+                    entities.Insert(0, fb);
+                }
+
+                //Console.WriteLine(entities.Count);
+            }
+
+            foreach (Entity e in entities.ToArray()) {
+                e.Update(gameTime);
+
+                if (e.entityType == EntityType.FIREBALL) {
+                    if (((Fireball) e).isHit) {
+                        entities.Remove(e);
+                        //e.UnloadContent();
+                    }
+                }
+            }
+
+            if (state.LeftButton == ButtonState.Pressed) {
+                Console.WriteLine(entities.Count);
+            }
+
+            Map.Update(gameTime);
+            Camera.Update();  
         }
     }
 }

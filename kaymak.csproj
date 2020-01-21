@@ -52,6 +52,7 @@
     <Compile Include="Kaymak\Map\Layer.cs" />
     <Compile Include="Kaymak\Map\TiledMap.cs" />
     <Compile Include="Kaymak\Map\Tiles\AnimatedTile.cs" />
+    <Compile Include="Kaymak\Map\Tiles\DestructibleTile.cs" />
     <Compile Include="Kaymak\Map\Tiles\Tile.cs" />
     <Compile Include="Kaymak\Program.cs" />
     <Compile Include="Kaymak\World.cs" />

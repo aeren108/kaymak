@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Kaymak.Entities {
@@ -18,11 +17,11 @@ namespace Kaymak.Entities {
             this.world = world;
             this.entityType = entityType;
 
-            Position = new Vector2(0, 0);
+            Position = new Vector2(64, 0);
             boundBox = new Rectangle(0, 0, 0, 0);
         }
 
-        public abstract void LoadContent(ContentManager content);
+        public abstract void LoadContent();
         public abstract void Render(SpriteBatch batch);
         public abstract void Update(GameTime gameTime);
     }

@@ -4,24 +4,24 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace Kaymak.Map.Tiles {
-    class AnimatedTile : Tile {
-        private Tile[] tiles;
-        private double delay;
-        private double timer;
-        private int curTile;
+    public class AnimatedTile : Tile {
+        protected Tile[] tiles;
+        protected double delay;
+        protected double timer;
+        protected int curTile;
 
-        public AnimatedTile(int[] ids, Texture2D tileSheet, float delay) : base(ids[0], tileSheet){
+        public AnimatedTile(Vector2 pos, int[] ids, float delay) : base(pos, ids[0]) {
             tiles = new Tile[ids.Length];
             this.delay = delay;
             curTile = 0;
 
             for (int i = 0; i < ids.Length; i++) {
-                tiles[i] = new Tile(ids[i], tileSheet);
+                tiles[i] = new Tile(pos, ids[i]); 
             }
         }
 
-        public override void Render(SpriteBatch batch, int x, int y) {
-            tiles[curTile].Render(batch, x, y);
+        public override void Render(SpriteBatch batch) {
+            tiles[curTile].Render(batch);
         }
 
         public override void Update(GameTime gameTime) {

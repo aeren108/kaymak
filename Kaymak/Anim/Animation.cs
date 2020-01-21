@@ -23,7 +23,7 @@ namespace Kaymak.Anim {
             SourceRectangle = new Rectangle(0, startY * frameHeight, FrameWidth, FrameHeight);
         }
 
-        public void LoadContent(ContentManager content) {
+        public void LoadContent() {
             
         }
 

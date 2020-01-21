@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Kaymak.Map.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Microsoft.Xna.Framework.Content;
-using Kaymak.Map.Tiles;
 
 namespace Kaymak.Map {
     class TiledMap : GameObject {
@@ -25,25 +23,29 @@ namespace Kaymak.Map {
         private List<Layer> Layers;
         public Rectangle[] Blocks;
         public List<int> BlockedTiles;
-        
+
+        public int tileCount = 0;
+
         public TiledMap(World world, String path) {
             this.path = path;
             this.world = world;
 
             Layers = new List<Layer>();
         }
-        public void LoadContent(ContentManager content) {
-            map = JObject.Parse(json: File.ReadAllText(content.RootDirectory + path));
+        public void LoadContent() {
+            map = JObject.Parse(json: File.ReadAllText(Main.CM.RootDirectory + path));
 
             ParseMap();
 
-            SpriteSheet = content.Load<Texture2D>(SpriteSheetPath);
+            SpriteSheet = Main.CM.Load<Texture2D>(SpriteSheetPath);
 
             SheetWidth = SpriteSheet.Width / TileSize;
             SheetHeight = SpriteSheet.Height / TileSize;
 
+            tileCount = SheetWidth * SheetHeight;
+
             foreach (var layer in Layers)
-                layer.LoadContent(content);
+                layer.LoadContent();
         }
 
         private void ParseMap() {
@@ -82,15 +84,20 @@ namespace Kaymak.Map {
             Blocks = colBlocks.ToArray();
         }
 
-        public int GetTile(int x, int y) {
+        public int GetId(int x, int y) {
             return Layers[Layers.Count - 1].GetId(x, y);
         }
 
+        public Tile GetTile(int x, int y) {
+            return Layers[Layers.Count - 1].GetTile(x, y);
+        }
+
         public bool IsBlocked(int x, int y) {
-            foreach (var layer in Layers) {
-                if (layer.IsBlocked(x, y))
+            for (int i = 0; i < Layers.Count; i++) {
+                if (Layers[i].IsBlocked(x, y))
                     return true;
             }
+
             return false;
         }
 
@@ -106,7 +113,9 @@ namespace Kaymak.Map {
         }
 
         public void Update(GameTime gameTime) {
-            // TODO: Update for animated tiles
+            for (int i = 0; i < Layers.Count; i++) {
+                Layers[i].Update(gameTime);
+            }
         }
     }
 }

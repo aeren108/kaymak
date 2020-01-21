@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -11,15 +12,19 @@ namespace Kaymak {
         World world;
 
         SpriteFont font;
+
+        public static ContentManager CM;
         public Main() {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             graphics.IsFullScreen = true;
             IsMouseVisible = true;
+
             graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
             graphics.ApplyChanges();
+            CM = Content;
         }
 
         protected override void Initialize() {
@@ -31,7 +36,7 @@ namespace Kaymak {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             world = new World(graphics.GraphicsDevice);
-            world.LoadContent(Content);
+            world.LoadContent();
 
             font = Content.Load<SpriteFont>("font");
 
@@ -48,7 +53,6 @@ namespace Kaymak {
                 Exit();
 
             world.Update(gameTime);
-
             base.Update(gameTime);
         }
 
@@ -60,6 +64,7 @@ namespace Kaymak {
             spriteBatch.Begin();
 
             spriteBatch.DrawString(font, "Volume: " + (MediaPlayer.Volume * 100).ToString("0.0"), Vector2.Zero, Color.White);
+            spriteBatch.DrawString(font, "FPS: " + (1 / gameTime.ElapsedGameTime.TotalSeconds).ToString("0.000"), new Vector2(0, 20), Color.White);
 
             spriteBatch.End();
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using Kaymak.Map.Tiles;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Kaymak.Map {
@@ -15,15 +14,34 @@ namespace Kaymak.Map {
         private Rectangle cameraBound = new Rectangle(0, 0, 1920, 1080);
         private Vector2 origin = new Vector2(0, 0);
 
+        private Tile[] Tiles;
+
         public Layer(TiledMap map, int[] tiles, bool isVisible, Camera camera) {
             this.map = map;
             this.tiles = tiles;
             this.isVisible = isVisible;
             this.camera = camera;
+
+            Tiles = new Tile[tiles.Length];
         }
 
-        public void LoadContent(ContentManager content) {
+        public void LoadContent() {
             Tile.tileSheet = map.SpriteSheet;
+            InitTiles();
+        }
+
+        private void InitTiles() {
+            for (int x = 0; x < map.Width; x++) {
+                for (int y = 0; y < map.Height; y++) {
+                    int index = x + y * map.Width;
+                    int id = tiles[index] - 1;
+
+                    Tile tile = new Tile(new Vector2(x, y), id);
+                    tile.IsSolid = map.BlockedTiles.Contains(id + 1);
+
+                    Tiles[index] = tile;
+                }
+            }
         }
 
         public int GetId(int x, int y) {
@@ -37,13 +55,19 @@ namespace Kaymak.Map {
             }
         }
 
+        public Tile GetTile(int x, int y) {
+            int xa = x / map.TileSize;
+            int ya = y / map.TileSize;
+
+            try {
+                return Tiles[xa + ya * map.Width];
+            } catch (IndexOutOfRangeException) {
+                return new Tile(Vector2.Zero, 0);
+            }
+        }
+
         public bool IsBlocked(int x, int y) {
-            int id = GetId(x, y);
-
-            if (map.BlockedTiles.Contains(id))
-                return true;
-
-            return false;
+            return GetTile(x, y).IsSolid;
         }
 
         public void Render(SpriteBatch batch) {
@@ -56,20 +80,25 @@ namespace Kaymak.Map {
 
                     if (id == -1) continue;
 
+                    Tile tile = Tiles[index];
+
                     tileRect.X = x * map.TileSize; tileRect.Y = y * map.TileSize;
                     camera.WorldPosition(ref origin);
 
                     cameraBound.X = (int) origin.X;
                     cameraBound.Y = (int) origin.Y;
-                    
+
                     if (tileRect.Intersects(cameraBound))
-                        Tile.GetTile(id).Render(batch, x, y);
+                        tile.Render(batch);
                 }
             }
         }
 
         public void Update(GameTime gameTime) {
-
+            for (int i = 0; i < map.tileCount; i++) {
+                if (Tiles[i] != null)
+                    Tiles[i].Update(gameTime);
+            }
         }
     }
 }
