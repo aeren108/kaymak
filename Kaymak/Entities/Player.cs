@@ -93,7 +93,7 @@ namespace Kaymak.Entities {
                 Direction.X = Velocity.X; Direction.Y = Velocity.Y;
                 Direction.Normalize();
 
-                if (knockbackTimer >= 0.2f) {
+                if (knockbackTimer >= 0.25f) {
                     IsKnockbacked = false;
                     knockbackTimer = 0;
                 }
@@ -127,7 +127,7 @@ namespace Kaymak.Entities {
             
             if ((blockedX || blockedY) && IsKnockbacked) {
                 //player hit somewere while on knockback so it will harm player
-
+                world.Shaker.shake(2f, .1f);
                 knockbackTimer *= 1.05f;
                 //health -= KnockbackSpeeed.Length * 10
             }
@@ -142,7 +142,7 @@ namespace Kaymak.Entities {
                         if (boundBox.Intersects(e.boundBox)) {
                             (e as Fireball).isHit = true;
                             ApplyKnockback((e as Fireball).Direction, (e as Fireball).knockbackPower);
-                            
+                            world.Shaker.shake(4f, .15f);
                             //health -= e.damage;
                         }
                         break;

@@ -9,11 +9,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Kaymak.Effect;
 
 namespace Kaymak {
     class World : GameObject {
         public TiledMap Map;
         public Camera Camera;
+        public ScreenShaker Shaker;
 
         public List<Entity> entities;
         private Entity player;
@@ -34,6 +36,7 @@ namespace Kaymak {
             Map = new TiledMap(this, "/dungeon.json");
             Camera = new Camera(graphics);
             player = new Player(this);
+            Shaker = new ScreenShaker();
 
             Map.LoadContent();
             player.LoadContent();
@@ -123,6 +126,7 @@ namespace Kaymak {
             }
 
             Map.Update(gameTime);
+            Shaker.Update(gameTime, Camera);
             Camera.Update();  
         }
     }

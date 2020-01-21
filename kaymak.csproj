@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Kaymak\Anim\Animation.cs" />
     <Compile Include="Kaymak\Camera.cs" />
+    <Compile Include="Kaymak\Effect\ScreenShaker.cs" />
     <Compile Include="Kaymak\Entities\Entity.cs" />
     <Compile Include="Kaymak\Entities\EntityType.cs" />
     <Compile Include="Kaymak\Entities\Fireball.cs" />
