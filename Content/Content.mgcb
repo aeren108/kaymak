@@ -25,6 +25,18 @@
 /processorParam:TextureFormat=Color
 /build:cat_fighter.png
 
+#begin cursor.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:cursor.png
+
 #begin dungeon.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -62,11 +74,11 @@
 /processorParam:Quality=Best
 /build:footsteps.wav
 
-#begin gametheme.mp3
+#begin hero_immortal.mp3
 /importer:Mp3Importer
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:gametheme.mp3
+/build:hero_immortal.mp3
 
 #begin knockback.wav
 /importer:WavImporter
@@ -85,4 +97,10 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:terrain_atlas.png
+
+#begin whoosh.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:whoosh.wav
 

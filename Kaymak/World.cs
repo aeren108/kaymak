@@ -18,13 +18,15 @@ namespace Kaymak {
         public ScreenShaker Shaker;
 
         public List<Entity> entities;
-        private Entity player;
+        public Entity player;
 
         private GraphicsDevice graphics;
         private Song gameTheme;
 
         private int prevScroll = 0;
         private double demoTimer = 0;
+
+        private Random random = new Random();
 
         public World(GraphicsDevice graphicsDevice) {
             this.graphics = graphicsDevice;
@@ -42,8 +44,8 @@ namespace Kaymak {
             player.LoadContent();
             entities.Add(player);
 
-            gameTheme = CM.Load<Song>("gametheme");
-            MediaPlayer.Volume = 0.05f;
+            gameTheme = CM.Load<Song>("hero_immortal");
+            MediaPlayer.Volume = 0.2f;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(gameTheme);
         }
@@ -97,13 +99,18 @@ namespace Kaymak {
                 MediaPlayer.Resume();
 
             //generating fireballs every 0.1 seconds
-            if (demoTimer >= 0.1f) {
+            if (demoTimer >= 0.3f) {
                 demoTimer = 0;
-
+                
                 for (int i = 0; i < 2; i++) {
-                    Fireball fb = new Fireball(this);
-                    fb.LoadContent();
+                    int dir = random.Next(0, 2);
+                    Fireball fb = null;
+                    if (dir == 0) 
+                        fb = new Fireball(this, FireballDirection.HORIZONTAL);
+                    else if (dir == 1)
+                        fb = new Fireball(this, FireballDirection.VERTICAL);
 
+                    fb.LoadContent();
                     entities.Insert(0, fb);
                 }
 
@@ -119,10 +126,6 @@ namespace Kaymak {
                         //e.UnloadContent();
                     }
                 }
-            }
-
-            if (state.LeftButton == ButtonState.Pressed) {
-                Console.WriteLine(entities.Count);
             }
 
             Map.Update(gameTime);

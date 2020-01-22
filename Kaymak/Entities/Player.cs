@@ -11,7 +11,7 @@ namespace Kaymak.Entities {
     class Player : Entity {
         private Vector2 Velocity;
         private Vector2 Direction;
-        private float velPerSecond = 180f;
+        private float velPerSecond = 150f;
 
         private Animation RightWalk;
         private Animation LeftWalk;
@@ -22,14 +22,20 @@ namespace Kaymak.Entities {
 
         private SoundEffectInstance FootStep;
         private SoundEffectInstance Knockback;
+        private SoundEffectInstance Dash;
 
         private bool IsKnockbacked = false;
         private Vector2 KnockbackSpeed;
         private double knockbackTimer;
         private float KnockbackResistance = 2f; //out of 10
-        private float knockbackDuration;
+        private float knockbackDuration; //TODO: calculate duration based on knocback power and resistance.
 
-        public object REctangle { get; private set; }
+        private bool IsDashing = false;
+        private Vector2 DashSpeed;
+        private double dashTimer;
+        public bool dashReady = true;
+        public double dashCooldownTimer;
+        public double dashCooldown = 1f;
 
         public Player(World world) : base(world, EntityType.PLAYER) {
             this.world = world;
@@ -38,14 +44,16 @@ namespace Kaymak.Entities {
             Velocity = new Vector2(0, 0);
             Direction = new Vector2(0, 0);
             KnockbackSpeed = new Vector2(0, 0);
+            DashSpeed = new Vector2(1, 1);
 
-            boundBox.Width = 32; boundBox.Height = 32;
+            boundBox.Width = 32; boundBox.Height = 42;
         }
 
         public override void LoadContent() {
-            sprite = Main.CM.Load<Texture2D>("cat_fighter");
-            FootStep = Main.CM.Load<SoundEffect>("footsteps").CreateInstance();
-            Knockback = Main.CM.Load<SoundEffect>("knockback").CreateInstance();
+            sprite = CM.Load<Texture2D>("cat_fighter");
+            FootStep = CM.Load<SoundEffect>("footsteps").CreateInstance();
+            Knockback = CM.Load<SoundEffect>("knockback").CreateInstance();
+            Dash = CM.Load<SoundEffect>("whoosh").CreateInstance();
 
             RightWalk = new Animation(70, 8, 64, 64, 2);
             LeftWalk = new Animation(70, 8, 64, 64, 3);
@@ -56,8 +64,11 @@ namespace Kaymak.Entities {
             FootStep.Volume = .1f;
             FootStep.Pitch = .05f;
 
-            Knockback.Volume = 0.3f;
+            Knockback.Volume = 0.4f;
             Knockback.Pitch = -0.2f;
+
+            Dash.Volume = .2f;
+            Dash.Pitch = .2f;
         }
 
         public override void Render(SpriteBatch batch) {
@@ -65,25 +76,58 @@ namespace Kaymak.Entities {
         }
 
         public override void Update(GameTime gameTime) {
-            KeyboardState state = Keyboard.GetState();
+            KeyboardState keyState = Keyboard.GetState();
+            MouseState mouseState = Mouse.GetState();
 
-            if (state.IsKeyDown(Keys.W))
+            if (keyState.IsKeyDown(Keys.W))
                 Direction.Y = -1;
-            else if (state.IsKeyDown(Keys.S)) 
+            else if (keyState.IsKeyDown(Keys.S)) 
                 Direction.Y = 1;
             else
                 Direction.Y = 0;
-            if (state.IsKeyDown(Keys.A)) 
+            if (keyState.IsKeyDown(Keys.A)) 
                 Direction.X = -1;
-            else if (state.IsKeyDown(Keys.D))
+            else if (keyState.IsKeyDown(Keys.D))
                 Direction.X = 1;
             else
                 Direction.X = 0;
 
+            if ((mouseState.LeftButton == ButtonState.Pressed) && dashReady && !IsKnockbacked) {
+                IsDashing = true;
+                Vector2 mouseVec = new Vector2(mouseState.X, mouseState.Y);
+                world.Camera.WorldPosition(ref mouseVec);
+
+                DashSpeed = mouseVec - Position;
+                DashSpeed.Normalize();
+                DashSpeed *= 12f;
+            } 
+
             boundBox.X = (int) Position.X + 24;
-            boundBox.Y = (int) Position.Y + 38;
+            boundBox.Y = (int) Position.Y + 24;
 
             Velocity = Direction * velPerSecond * (float) gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (!dashReady) {
+                dashCooldownTimer += gameTime.ElapsedGameTime.TotalSeconds;
+                if (dashCooldownTimer >= dashCooldown) {
+                    dashReady = true;
+                    dashCooldownTimer = 0;
+                }
+            }
+
+            if (IsDashing) {
+                dashTimer += gameTime.ElapsedGameTime.TotalSeconds;
+                Velocity *= 0;
+                Velocity += DashSpeed;
+                Direction.X = Velocity.X; Direction.Y = Velocity.Y;
+                Direction.Normalize();
+
+                if (dashTimer >= 0.15f || IsKnockbacked) {
+                    IsDashing = false;
+                    dashReady = false;
+                    dashTimer = 0;
+                }
+            }
 
             if (IsKnockbacked) {
                 knockbackTimer += gameTime.ElapsedGameTime.TotalSeconds;
@@ -142,7 +186,7 @@ namespace Kaymak.Entities {
                         if (boundBox.Intersects(e.boundBox)) {
                             (e as Fireball).isHit = true;
                             ApplyKnockback((e as Fireball).Direction, (e as Fireball).knockbackPower);
-                            world.Shaker.shake(4f, .15f);
+                            world.Shaker.shake(2.5f, .18f);
                             //health -= e.damage;
                         }
                         break;
@@ -166,16 +210,21 @@ namespace Kaymak.Entities {
 
         private void HandleSoundEffects() {
             if (Velocity.X != 0 || Velocity.Y != 0) {
-                if (!IsKnockbacked) {
-                    Knockback.Stop();
-
-                    if (FootStep.State != SoundState.Playing)
-                        FootStep.Play();
-
-                } else {
+                if (IsKnockbacked) {
+                    FootStep.Stop();
                     if (Knockback.State != SoundState.Playing)
                         Knockback.Play();
+                } else if (IsDashing) {
+                    Knockback.Stop();
+                    FootStep.Stop();
+                    if (Dash.State != SoundState.Playing)
+                        Dash.Play();
+                } else {
+                    Knockback.Stop();
+                    if (FootStep.State != SoundState.Playing)
+                        FootStep.Play();
                 }
+
             } else {
                 FootStep.Stop();
             }
