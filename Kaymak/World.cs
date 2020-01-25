@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Kaymak.Effect;
+using kaymak.Kaymak.Entities;
 
 namespace Kaymak {
     class World : GameObject {
@@ -24,7 +25,10 @@ namespace Kaymak {
         private Song gameTheme;
 
         private int prevScroll = 0;
-        private double demoTimer = 0;
+        private double fireballTimer = 0;
+        private double laserTimer = 0;
+
+        private double laserTreshold = 1.2f;
 
         private Random random = new Random();
 
@@ -45,7 +49,7 @@ namespace Kaymak {
             entities.Add(player);
 
             gameTheme = CM.Load<Song>("hero_immortal");
-            MediaPlayer.Volume = 0.2f;
+            MediaPlayer.Volume = 0.05f;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(gameTheme);
         }
@@ -69,7 +73,8 @@ namespace Kaymak {
             MouseState state = Mouse.GetState();
 
             Camera.Pos = player.Position;
-            demoTimer += gameTime.ElapsedGameTime.TotalSeconds;
+            fireballTimer += gameTime.ElapsedGameTime.TotalSeconds;
+            laserTimer += gameTime.ElapsedGameTime.TotalSeconds;
 
             if (Camera.Pos.X < graphics.Viewport.Width / 2) {
                 Camera.Pos.X = graphics.Viewport.Width / 2;
@@ -98,13 +103,14 @@ namespace Kaymak {
             else if (MediaPlayer.Volume != 0 && MediaPlayer.State == MediaState.Paused)
                 MediaPlayer.Resume();
 
-            //generating fireballs every 0.1 seconds
-            if (demoTimer >= 0.3f) {
-                demoTimer = 0;
+            //generating fireballs every 0.2 seconds
+            if (fireballTimer >= 0.2f) {
+                fireballTimer = 0;
                 
                 for (int i = 0; i < 2; i++) {
                     int dir = random.Next(0, 2);
                     Fireball fb = null;
+
                     if (dir == 0) 
                         fb = new Fireball(this, FireballDirection.HORIZONTAL);
                     else if (dir == 1)
@@ -113,8 +119,25 @@ namespace Kaymak {
                     fb.LoadContent();
                     entities.Insert(0, fb);
                 }
-
                 //Console.WriteLine(entities.Count);
+            }
+
+            if (laserTimer >= laserTreshold) {
+                for (int i = 0; i < 2; i++) {
+                    int dir = random.Next(0, 2);
+                    Laser l = null;
+
+                    if (dir == 0)
+                        l = new Laser(this, LaserDirection.HORIZONTAL);
+                    else if (dir == 1)
+                        l = new Laser(this, LaserDirection.VERTICAL);
+
+                    l.LoadContent();
+                    entities.Add(l);
+
+                    laserTreshold = random.NextDouble() * (1.5d - 0.8d) + 0.8d;
+                    laserTimer = 0;
+                }
             }
 
             foreach (Entity e in entities.ToArray()) {
@@ -123,8 +146,10 @@ namespace Kaymak {
                 if (e.entityType == EntityType.FIREBALL) {
                     if (((Fireball) e).isHit) {
                         entities.Remove(e);
-                        //e.UnloadContent();
                     }
+                } else if (e.entityType == EntityType.LASER) {
+                    if ((e as Laser).IsFinished)
+                        entities.Remove(e);
                 }
             }
 

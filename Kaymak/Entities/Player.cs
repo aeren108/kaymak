@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Audio;
 
 using Kaymak.Anim;
 using static Kaymak.Main;
+using kaymak.Kaymak.Entities;
 
 namespace Kaymak.Entities {
     class Player : Entity {
@@ -23,19 +24,24 @@ namespace Kaymak.Entities {
         private SoundEffectInstance FootStep;
         private SoundEffectInstance Knockback;
         private SoundEffectInstance Dash;
+        public AudioListener Listener;
 
         private bool IsKnockbacked = false;
-        private Vector2 KnockbackSpeed;
+        private Vector2 KnockbackVelocity;
         private double knockbackTimer;
         private float KnockbackResistance = 2f; //out of 10
         private float knockbackDuration; //TODO: calculate duration based on knocback power and resistance.
 
         private bool IsDashing = false;
-        private Vector2 DashSpeed;
+        private Vector2 DashVelocity;
         private double dashTimer;
         public bool dashReady = true;
         public double dashCooldownTimer;
         public double dashCooldown = 1f;
+
+        private bool CanCollide = true;
+        private double collisionTimer;
+        private double collisionCooldown = 1d;
 
         public Player(World world) : base(world, EntityType.PLAYER) {
             this.world = world;
@@ -43,8 +49,8 @@ namespace Kaymak.Entities {
             Position = new Vector2(130, 150);
             Velocity = new Vector2(0, 0);
             Direction = new Vector2(0, 0);
-            KnockbackSpeed = new Vector2(0, 0);
-            DashSpeed = new Vector2(1, 1);
+            KnockbackVelocity = new Vector2(0, 0);
+            DashVelocity = new Vector2(1, 1);
 
             boundBox.Width = 32; boundBox.Height = 42;
         }
@@ -69,6 +75,9 @@ namespace Kaymak.Entities {
 
             Dash.Volume = .2f;
             Dash.Pitch = .2f;
+
+            Listener = new AudioListener();
+            Listener.Position = new Vector3(Position.X + 32, Position.Y + 32, 0);
         }
 
         public override void Render(SpriteBatch batch) {
@@ -97,9 +106,11 @@ namespace Kaymak.Entities {
                 Vector2 mouseVec = new Vector2(mouseState.X, mouseState.Y);
                 world.Camera.WorldPosition(ref mouseVec);
 
-                DashSpeed = mouseVec - Position;
-                DashSpeed.Normalize();
-                DashSpeed *= 12f;
+                DashVelocity = mouseVec - new Vector2(Position.X + 32, Position.Y + 32);
+                DashVelocity.Normalize();
+                DashVelocity *= 12f;
+
+                Console.WriteLine(Position);
             } 
 
             boundBox.X = (int) Position.X + 24;
@@ -118,7 +129,7 @@ namespace Kaymak.Entities {
             if (IsDashing) {
                 dashTimer += gameTime.ElapsedGameTime.TotalSeconds;
                 Velocity *= 0;
-                Velocity += DashSpeed;
+                Velocity += DashVelocity;
                 Direction.X = Velocity.X; Direction.Y = Velocity.Y;
                 Direction.Normalize();
 
@@ -132,22 +143,34 @@ namespace Kaymak.Entities {
             if (IsKnockbacked) {
                 knockbackTimer += gameTime.ElapsedGameTime.TotalSeconds;
                 Velocity *= 0.3f;
-                Velocity += KnockbackSpeed;
+                Velocity += KnockbackVelocity;
 
                 Direction.X = Velocity.X; Direction.Y = Velocity.Y;
                 Direction.Normalize();
 
-                if (knockbackTimer >= 0.25f) {
+                if (knockbackTimer >= 0.3f) {
                     IsKnockbacked = false;
                     knockbackTimer = 0;
                 }
             }
+
+            if (!CanCollide) {
+                collisionTimer += gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (collisionTimer >= collisionCooldown) {
+                    CanCollide = true;
+                    collisionTimer = 0;
+                }
+            }
+
 
             HandleTileCollision();
             HandleEntityCollision();
             HandleSoundEffects();
             SetAnimations();
             
+            Listener.Position = new Vector3(Position.X + 32, Position.Y + 32, 0);
+
             Position += Velocity;
             CurAnim.Update(gameTime);
         }
@@ -171,7 +194,7 @@ namespace Kaymak.Entities {
             
             if ((blockedX || blockedY) && IsKnockbacked) {
                 //player hit somewere while on knockback so it will harm player
-                world.Shaker.shake(2f, .1f);
+                world.Shaker.shake(3f, .2f);
                 knockbackTimer *= 1.05f;
                 //health -= KnockbackSpeeed.Length * 10
             }
@@ -183,9 +206,11 @@ namespace Kaymak.Entities {
 
                 switch(e.entityType) {
                     case EntityType.FIREBALL:
-                        if (boundBox.Intersects(e.boundBox)) {
-                            (e as Fireball).isHit = true;
-                            ApplyKnockback((e as Fireball).Direction, (e as Fireball).knockbackPower);
+                        Fireball f = e as Fireball;
+
+                        if (CanCollide && boundBox.Intersects(f.boundBox)) {
+                            f.isHit = true;
+                            ApplyKnockback(f.Direction, f.knockbackPower);
                             world.Shaker.shake(2.5f, .18f);
                             //health -= e.damage;
                         }
@@ -195,6 +220,34 @@ namespace Kaymak.Entities {
                         break;
 
                     case EntityType.LASER:
+                        Laser l = e as Laser;
+
+                        if (CanCollide && !IsDashing && l.IsActive && boundBox.Intersects(l.boundBox)) {
+                            Vector2 knockbackDir;
+                            if (l.direction == LaserDirection.HORIZONTAL) {
+                                if (Position.Y > l.Position.Y) {
+                                    //player is under the laser
+                                    knockbackDir = new Vector2(0, 1);
+                                } else {
+                                    //laser is under the player
+                                    knockbackDir = new Vector2(0, -1);
+                                }
+                            } else {
+                                if (Position.X < l.Position.X) {
+                                    // player is to the left of the laser
+                                    knockbackDir = new Vector2(-1, 0);
+                                } else {
+                                    // player is to the right of the laser
+                                    knockbackDir = new Vector2(1, 0);
+                                }
+                            }
+
+                            ApplyKnockback(knockbackDir, l.KnockbackPower);
+                            world.Shaker.shake(2f, 0.15f);
+                            CanCollide = false;
+                            IsDashing = false;
+                        }
+
                         break;
                 }
             }
@@ -205,7 +258,7 @@ namespace Kaymak.Entities {
                 knockbackTimer = 0;
 
             IsKnockbacked = true;
-            KnockbackSpeed = speed * direction;
+            KnockbackVelocity = speed * direction;
         } 
 
         private void HandleSoundEffects() {
@@ -224,7 +277,6 @@ namespace Kaymak.Entities {
                     if (FootStep.State != SoundState.Playing)
                         FootStep.Play();
                 }
-
             } else {
                 FootStep.Stop();
             }

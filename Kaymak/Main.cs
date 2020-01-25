@@ -25,8 +25,8 @@ namespace Kaymak {
             //graphics.IsFullScreen = true;
             //IsMouseVisible = true;
 
-            graphics.PreferredBackBufferWidth = 1280;//GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = 720;//GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.PreferredBackBufferWidth = 1280;// GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = 720;// GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
             graphics.ApplyChanges();
             CM = Content;
@@ -67,7 +67,7 @@ namespace Kaymak {
                 dash = "Dash: " + (p.dashCooldown - p.dashCooldownTimer).ToString("0.00");
             }
 
-            cursorPos = new Vector2(mState.X, mState.Y);
+            cursorPos = new Vector2(mState.X - 16, mState.Y - 16);
 
             world.Update(gameTime);
             base.Update(gameTime);
