@@ -10,21 +10,23 @@ using Newtonsoft.Json.Linq;
 namespace Kaymak.Map {
     class TiledMap : GameObject {
         private JObject map;
-        private String path;
+        private string path;
         private World world;
 
         public int Width, Height;
         public int SheetWidth, SheetHeight;
         public int TileSize;
-        public string SpriteSheetPath;
+        public string[] SpriteSheetPaths;
 
-        public Texture2D SpriteSheet;
+        public Texture2D[] SpriteSheets = new Texture2D[2];
 
         private List<Layer> Layers;
         public Rectangle[] Blocks;
         public List<int> BlockedTiles;
 
         public int tileCount = 0;
+
+        public int curTileset = 0;
 
         public TiledMap(World world, String path) {
             this.path = path;
@@ -37,10 +39,11 @@ namespace Kaymak.Map {
 
             ParseMap();
 
-            SpriteSheet = Main.CM.Load<Texture2D>(SpriteSheetPath);
-
-            SheetWidth = SpriteSheet.Width / TileSize;
-            SheetHeight = SpriteSheet.Height / TileSize;
+            for (int i = 0; i < SpriteSheetPaths.Length; i++) {
+                SpriteSheets[i] = Main.CM.Load<Texture2D>(SpriteSheetPaths[i]);
+            }
+            SheetWidth = SpriteSheets[curTileset].Width / TileSize;
+            SheetHeight = SpriteSheets[curTileset].Height / TileSize;
 
             tileCount = SheetWidth * SheetHeight;
 
@@ -52,7 +55,8 @@ namespace Kaymak.Map {
             Width = (int) map["width"];
             Height = (int) map["height"];
 
-            SpriteSheetPath = (string) map["spritesheet"];
+            SpriteSheetPaths = ((JArray) (map["spritesheets"])).Select(c => (string) c).ToArray();
+            Console.WriteLine(SpriteSheetPaths[0]);
             TileSize = (int) map["tileSize"];
 
             JArray layerArray = (JArray) map["layers"];
@@ -99,6 +103,16 @@ namespace Kaymak.Map {
             }
 
             return false;
+        }
+
+        public void ChangeTileset() {
+            if (curTileset < SpriteSheets.Length - 1)
+                curTileset++;
+            else
+                curTileset = 0;
+
+            foreach (var layer in Layers)
+                layer.LoadContent();
         }
 
         public void Render(SpriteBatch batch) {

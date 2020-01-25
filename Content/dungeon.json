@@ -1,5 +1,5 @@
 ﻿{
-	"spritesheet":"dungeon",
+	"spritesheets": ["dungeon", "dungeon_blue"],
 	"tileSize": 32,
 
 	"width": 80,

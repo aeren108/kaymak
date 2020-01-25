@@ -30,7 +30,7 @@ namespace Kaymak.Entities {
             isHorizontal = (direction == FireballDirection.HORIZONTAL);
             Velocity = new Vector2(0, 0);
             Direction = isHorizontal ? new Vector2(1, 0) : new Vector2(0, 1);
-            Position = isHorizontal ? new Vector2(0, random.Next(100, 1500)) : new Vector2(random.Next(150, 2400), 0);
+            Position = isHorizontal ? new Vector2(0, random.Next(4, 64) * 32) : new Vector2(random.Next(4, 80) * 32, 0);
 
             velPerSecond = random.Next(200, 360);
 

@@ -26,7 +26,7 @@ namespace Kaymak.Map {
         }
 
         public void LoadContent() {
-            Tile.tileSheet = map.SpriteSheet;
+            Tile.tileSheet = map.SpriteSheets[map.curTileset];
             InitTiles();
         }
 

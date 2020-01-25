@@ -101,6 +101,8 @@ namespace kaymak.Kaymak.Entities {
             
             if (IsActive && LaserSound.State != SoundState.Playing) {
                 LaserSound.Play();
+            } if (IsFinished) {
+                LaserSound.Stop();
             }
         }
     }

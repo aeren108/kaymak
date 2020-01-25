@@ -31,6 +31,7 @@ namespace Kaymak {
         private double laserTreshold = 1.2f;
 
         private Random random = new Random();
+        private bool canPress;
 
         public World(GraphicsDevice graphicsDevice) {
             this.graphics = graphicsDevice;
@@ -71,6 +72,7 @@ namespace Kaymak {
 
         public void Update(GameTime gameTime) {
             MouseState state = Mouse.GetState();
+            KeyboardState keyState = Keyboard.GetState();
 
             Camera.Pos = player.Position;
             fireballTimer += gameTime.ElapsedGameTime.TotalSeconds;
@@ -87,6 +89,13 @@ namespace Kaymak {
             } else if (Camera.Pos.Y > Map.Height * Map.TileSize - graphics.Viewport.Height / 2) {
                 Camera.Pos.Y = Map.Height * Map.TileSize - graphics.Viewport.Height / 2;
             }
+
+            if (keyState.IsKeyDown(Keys.Space)) {
+                if (canPress)
+                    Map.ChangeTileset();
+                canPress = false;
+            } if (keyState.IsKeyUp(Keys.Space))
+                canPress = true;
 
             if (state.ScrollWheelValue < prevScroll)
                 MediaPlayer.Volume -= .05f;

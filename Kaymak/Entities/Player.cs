@@ -108,9 +108,7 @@ namespace Kaymak.Entities {
 
                 DashVelocity = mouseVec - new Vector2(Position.X + 32, Position.Y + 32);
                 DashVelocity.Normalize();
-                DashVelocity *= 12f;
-
-                Console.WriteLine(Position);
+                DashVelocity *= 13f;
             } 
 
             boundBox.X = (int) Position.X + 24;
