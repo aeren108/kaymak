@@ -131,7 +131,7 @@ namespace Kaymak.Entities {
                 Direction.X = Velocity.X; Direction.Y = Velocity.Y;
                 Direction.Normalize();
 
-                if (dashTimer >= 0.15f || IsKnockbacked) {
+                if (dashTimer >= .15f || IsKnockbacked) {
                     IsDashing = false;
                     dashReady = false;
                     dashTimer = 0;
@@ -140,13 +140,13 @@ namespace Kaymak.Entities {
 
             if (IsKnockbacked) {
                 knockbackTimer += gameTime.ElapsedGameTime.TotalSeconds;
-                Velocity *= 0.3f;
+                Velocity *= .3f;
                 Velocity += KnockbackVelocity;
 
                 Direction.X = Velocity.X; Direction.Y = Velocity.Y;
                 Direction.Normalize();
 
-                if (knockbackTimer >= 0.3f) {
+                if (knockbackTimer >= .3f) {
                     IsKnockbacked = false;
                     knockbackTimer = 0;
                 }
@@ -160,7 +160,6 @@ namespace Kaymak.Entities {
                     collisionTimer = 0;
                 }
             }
-
 
             HandleTileCollision();
             HandleEntityCollision();

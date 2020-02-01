@@ -58,6 +58,12 @@
     <Compile Include="Kaymak\Map\Tiles\DestructibleTile.cs" />
     <Compile Include="Kaymak\Map\Tiles\Tile.cs" />
     <Compile Include="Kaymak\Program.cs" />
+    <Compile Include="Kaymak\Screens\MenuScreen.cs" />
+    <Compile Include="Kaymak\Screens\MultiplayerScreen.cs" />
+    <Compile Include="Kaymak\Screens\Screen.cs" />
+    <Compile Include="Kaymak\Screens\ScreenManager.cs" />
+    <Compile Include="Kaymak\Screens\SingleplayerScreen.cs" />
+    <Compile Include="Kaymak\UI\Button.cs" />
     <Compile Include="Kaymak\World.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
