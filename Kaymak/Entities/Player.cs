@@ -265,12 +265,12 @@ namespace Kaymak.Entities {
                     if (Knockback.State != SoundState.Playing)
                         Knockback.Play();
                 } else if (IsDashing) {
-                    Knockback.Stop();
+                    //Knockback.Stop();
                     FootStep.Stop();
                     if (Dash.State != SoundState.Playing)
                         Dash.Play();
                 } else {
-                    Knockback.Stop();
+                    //Knockback.Stop();
                     if (FootStep.State != SoundState.Playing)
                         FootStep.Play();
                 }

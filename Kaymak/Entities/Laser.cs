@@ -61,7 +61,6 @@ namespace kaymak.Kaymak.Entities {
             LaserSound.Pitch = 0.2f;
 
             emitter = new AudioEmitter();
-          
         }
 
         public override void Render(SpriteBatch batch) {

@@ -17,6 +17,7 @@ namespace Kaymak {
         Vector2 cursorPos;
 
         public static ContentManager CM;
+        public static bool ExitGame = false;
 
         public Main() {
             graphics = new GraphicsDeviceManager(this);
@@ -54,6 +55,8 @@ namespace Kaymak {
 
         protected override void Update(GameTime gameTime) {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+            if (ExitGame)
                 Exit();
 
             MouseState mState = Mouse.GetState();

@@ -59,6 +59,7 @@
     <Compile Include="Kaymak\Map\Tiles\Tile.cs" />
     <Compile Include="Kaymak\Network\Client.cs" />
     <Compile Include="Kaymak\Program.cs" />
+    <Compile Include="Kaymak\Screens\EscapeMenuScreen.cs" />
     <Compile Include="Kaymak\Screens\MenuScreen.cs" />
     <Compile Include="Kaymak\Screens\MultiplayerScreen.cs" />
     <Compile Include="Kaymak\Screens\Screen.cs" />
@@ -70,6 +71,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Lidgren.Network, Version=2012.1.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Lidgren.Network.1.0.2\lib\net451\Lidgren.Network.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
     </Reference>

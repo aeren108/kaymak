@@ -15,7 +15,7 @@ namespace Kaymak.UI {
         private Color textColor;
 
         public Button(Texture2D texture) : base(texture) {
-            textColor = Color.Orange;
+            textColor = Color.BurlyWood;
         }
 
         public override void LoadContent() {
@@ -37,7 +37,7 @@ namespace Kaymak.UI {
             if (isHovering)
                 textColor = Color.White;
             else
-                textColor = Color.Orange;
+                textColor = Color.BurlyWood;
 
             base.Update(gameTime);
         }

@@ -25,5 +25,9 @@ namespace Kaymak.Screens {
         public abstract void Render(SpriteBatch batch);
 
         public abstract void Update(GameTime gameTime);
+
+        public virtual void SaveState() {
+            //TODO: Handle state saving;
+        }
     }
 }

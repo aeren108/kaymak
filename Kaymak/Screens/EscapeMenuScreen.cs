@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Kaymak.Screens {
     class EscapeMenuScreen : Screen {
 
-        public EscapeMenuScreen(ScreenManager screenManager, GraphicsDevice graphicsDevice) : base(screenManager, graphicsDevice) {
+        public EscapeMenuScreen(ScreenManager screenManager, GraphicsDevice graphicsDevice) : base(screenManager, graphicsDevice, true) {
 
         }
 

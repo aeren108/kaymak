@@ -19,6 +19,7 @@ namespace Kaymak.Screens {
         private List<Component> components; //TODO: add components to this list and handle via this list
         private Button singleplayer;
         private Button multiplayer;
+        private Button quit;
 
         public MenuScreen(ScreenManager screenManager, GraphicsDevice graphicsDevice) : base(screenManager, graphicsDevice, false) {
             components = new List<Component>();
@@ -30,18 +31,26 @@ namespace Kaymak.Screens {
 
             singleplayer = new Button(button);
             multiplayer = new Button(button);
+            quit = new Button(button);
 
             singleplayer.Text = "Singleplayer";
             multiplayer.Text = "Multiplayer";
+            quit.Text = "Quit";
 
-            singleplayer.Click += SingleplayerClick;
-            multiplayer.Click += MultiplayerClick;
+            singleplayer.Click += ButtonClick;
+            multiplayer.Click += ButtonClick;
+            quit.Click += ButtonClick;
 
             singleplayer.Position = new Vector2(graphicsDevice.Viewport.Width / 2 - 16 * 5, graphicsDevice.Viewport.Height / 2 - 64);
             multiplayer.Position = new Vector2(graphicsDevice.Viewport.Width / 2 - 16 * 5, graphicsDevice.Viewport.Height / 2 - 16);
+            quit.Position = new Vector2(graphicsDevice.Viewport.Width / 2 - 16 * 5, graphicsDevice.Viewport.Height / 2 + 32);
 
-            singleplayer.LoadContent();
-            multiplayer.LoadContent();
+            components.Add(singleplayer);
+            components.Add(multiplayer);
+            components.Add(quit);
+
+            foreach (var c in components)
+                c.LoadContent();
         }
 
         public override void Render(SpriteBatch batch) {
@@ -49,35 +58,26 @@ namespace Kaymak.Screens {
 
             batch.Begin();
 
-            singleplayer.Render(batch);
-            multiplayer.Render(batch);
+            for (int i = 0; i < components.Count; i++) 
+                components[i].Render(batch);
 
             batch.End();
         }
 
         public override void Update(GameTime gameTime) {
-            KeyboardState keyState = Keyboard.GetState();
+            for (int i = 0; i < components.Count; i++)
+                components[i].Update(gameTime);
+        }
 
-            if (keyState.IsKeyDown(Keys.S)) {
+        private void ButtonClick(object sender, EventArgs e) {
+            if (sender == singleplayer) {
                 isActive = false;
                 screenManager.AddScreen(new SingleplayerScreen(screenManager, graphicsDevice));
-            } else if (keyState.IsKeyDown(Keys.M)) {
-                isActive = false;
-                screenManager.AddScreen(new MultiplayerScreen(screenManager, graphicsDevice));
+            } else if (sender == multiplayer) {
+                //TODO: Prepare multiplayer screen
+            } else if (sender == quit) {
+                ExitGame = true;
             }
-
-            singleplayer.Update(gameTime);
-            multiplayer.Update(gameTime);
-        }
-
-        private void SingleplayerClick(object sender, EventArgs e) {
-            isActive = false;
-            screenManager.AddScreen(new SingleplayerScreen(screenManager, graphicsDevice));
-        }
-
-        private void MultiplayerClick(object sender, EventArgs e) {
-            isActive = false;
-            screenManager.AddScreen(new MultiplayerScreen(screenManager, graphicsDevice));
         }
     }
 }
