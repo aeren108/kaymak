@@ -22,7 +22,8 @@ namespace Kaymak.Screens {
         }
 
         public override void Render(SpriteBatch batch) {
-            
+            graphicsDevice.Clear(Color.Maroon);
+
         }
 
         public override void Update(GameTime gameTime) {

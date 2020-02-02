@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Kaymak.Map {
     class Layer : GameObject {
         public bool isVisible;
-        public int[] tiles;
+        public int[] tileIds;
         private TiledMap map;
         private Camera camera;
 
@@ -14,15 +14,15 @@ namespace Kaymak.Map {
         private Rectangle cameraBound = new Rectangle(0, 0, 1920, 1080);
         private Vector2 origin = new Vector2(0, 0);
 
-        private Tile[] Tiles;
+        private Tile[] tiles;
 
         public Layer(TiledMap map, int[] tiles, bool isVisible, Camera camera) {
             this.map = map;
-            this.tiles = tiles;
+            this.tileIds = tiles;
             this.isVisible = isVisible;
             this.camera = camera;
 
-            Tiles = new Tile[tiles.Length];
+            this.tiles = new Tile[tiles.Length];
         }
 
         public void LoadContent() {
@@ -34,12 +34,12 @@ namespace Kaymak.Map {
             for (int x = 0; x < map.Width; x++) {
                 for (int y = 0; y < map.Height; y++) {
                     int index = x + y * map.Width;
-                    int id = tiles[index] - 1;
+                    int id = tileIds[index] - 1;
 
                     Tile tile = new Tile(new Vector2(x, y), id);
                     tile.IsSolid = map.BlockedTiles.Contains(id + 1);
 
-                    Tiles[index] = tile;
+                    tiles[index] = tile;
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace Kaymak.Map {
             int ya = y / map.TileSize;
 
             try {
-                return tiles[xa + ya * map.Width];
+                return tileIds[xa + ya * map.Width];
             } catch (IndexOutOfRangeException) {
                 return 0;
             }
@@ -60,7 +60,7 @@ namespace Kaymak.Map {
             int ya = y / map.TileSize;
 
             try {
-                return Tiles[xa + ya * map.Width];
+                return tiles[xa + ya * map.Width];
             } catch (IndexOutOfRangeException) {
                 return new Tile(Vector2.Zero, 0);
             }
@@ -76,11 +76,11 @@ namespace Kaymak.Map {
                     origin = Vector2.Zero;
 
                     int index = x + y * map.Width;
-                    int id = tiles[index]-1;
+                    int id = tileIds[index]-1;
 
                     if (id == -1) continue;
 
-                    Tile tile = Tiles[index];
+                    Tile tile = tiles[index];
 
                     tileRect.X = x * map.TileSize; tileRect.Y = y * map.TileSize;
                     camera.WorldPosition(ref origin);
@@ -96,8 +96,8 @@ namespace Kaymak.Map {
 
         public void Update(GameTime gameTime) {
             for (int i = 0; i < map.tileCount; i++) {
-                if (Tiles[i] != null)
-                    Tiles[i].Update(gameTime);
+                if (tiles[i] != null)
+                    tiles[i].Update(gameTime);
             }
         }
     }

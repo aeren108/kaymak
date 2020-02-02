@@ -4,7 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kaymak.Kaymak.Network {
-    class Client {
+namespace Kaymak.Network {
+    public class Client {
+        
+        public Client() {
+
+        }
+
     }
 }

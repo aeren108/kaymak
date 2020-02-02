@@ -21,11 +21,11 @@ namespace Kaymak {
         public Main() {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            //graphics.IsFullScreen = true;
+            graphics.IsFullScreen = true;
             //IsMouseVisible = true;
 
-            graphics.PreferredBackBufferWidth = 1280;// GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = 720;// GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
             graphics.ApplyChanges();
             CM = Content;
@@ -57,7 +57,7 @@ namespace Kaymak {
                 Exit();
 
             MouseState mState = Mouse.GetState();
-            cursorPos = new Vector2(mState.X, mState.Y);
+            cursorPos = new Vector2(mState.X - 16, mState.Y - 16);
 
             screenManager.Update(gameTime);
             
