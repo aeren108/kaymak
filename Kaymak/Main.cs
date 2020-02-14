@@ -1,5 +1,6 @@
 ﻿using Kaymak.Entities;
 using Kaymak.Screens;
+using Kaymak.Screens.Menu;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,19 +18,21 @@ namespace Kaymak {
         Vector2 cursorPos;
 
         public static ContentManager CM;
+
         public static bool ExitGame = false;
 
         public Main() {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            graphics.IsFullScreen = true;
+            //graphics.IsFullScreen = true;
             //IsMouseVisible = true;
 
-            graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            graphics.PreferredBackBufferWidth = 1280;// GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            graphics.PreferredBackBufferHeight = 720;// GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
             graphics.ApplyChanges();
             CM = Content;
+            
         }
 
         protected override void Initialize() {
@@ -41,7 +44,7 @@ namespace Kaymak {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             screenManager = new ScreenManager();
 
-            screenManager.AddScreen(new MenuScreen(screenManager, GraphicsDevice));
+            screenManager.AddScreen(new MainMenuScreen(screenManager, GraphicsDevice));
             
             cursor = Content.Load<Texture2D>("cursor");
 

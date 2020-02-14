@@ -59,14 +59,17 @@
     <Compile Include="Kaymak\Map\Tiles\Tile.cs" />
     <Compile Include="Kaymak\Network\Client.cs" />
     <Compile Include="Kaymak\Program.cs" />
-    <Compile Include="Kaymak\Screens\EscapeMenuScreen.cs" />
-    <Compile Include="Kaymak\Screens\MenuScreen.cs" />
+    <Compile Include="Kaymak\Screens\Menu\EscapeMenuScreen.cs" />
+    <Compile Include="Kaymak\Screens\Menu\MainMenuScreen.cs" />
+    <Compile Include="Kaymak\Screens\Menu\MultiplayerMenuScreen.cs" />
     <Compile Include="Kaymak\Screens\MultiplayerScreen.cs" />
     <Compile Include="Kaymak\Screens\Screen.cs" />
     <Compile Include="Kaymak\Screens\ScreenManager.cs" />
     <Compile Include="Kaymak\Screens\SingleplayerScreen.cs" />
     <Compile Include="Kaymak\UI\Button.cs" />
     <Compile Include="Kaymak\UI\Component.cs" />
+    <Compile Include="Kaymak\UI\ComponentManager.cs" />
+    <Compile Include="Kaymak\UI\InputBox.cs" />
     <Compile Include="Kaymak\World.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

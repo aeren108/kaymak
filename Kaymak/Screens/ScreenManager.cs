@@ -41,5 +41,9 @@ namespace Kaymak.Screens {
                     Screens[i].Update(gameTime);
             }
         }
+
+        public void RemoveCurrent() {
+            Screens.RemoveAt(Screens.Count - 1);
+        }
     }
 }

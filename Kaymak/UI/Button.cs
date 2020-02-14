@@ -14,12 +14,16 @@ namespace Kaymak.UI {
         private Vector2 textPos;
         private Color textColor;
 
-        public Button(Texture2D texture) : base(texture) {
+        public Button() {
             textColor = Color.BurlyWood;
         }
 
         public override void LoadContent() {
             font = CM.Load<SpriteFont>("font");
+            normTexture = CM.Load<Texture2D>("button");
+            focusTexture = CM.Load<Texture2D>("buttonfocus");
+
+            texture = normTexture;
 
             base.LoadContent();
         }
@@ -34,10 +38,13 @@ namespace Kaymak.UI {
         public override void Update(GameTime gameTime) {
             textPos = new Vector2(Position.X + texture.Width / 2 - font.MeasureString(Text).X / 2, Position.Y + texture.Height / 2 - font.MeasureString(Text).Y / 2);
 
-            if (isHovering)
+            if (IsHovering || IsFocused) {
                 textColor = Color.White;
-            else
+                texture = focusTexture;
+            } else {
                 textColor = Color.BurlyWood;
+                texture = normTexture;
+            }
 
             base.Update(gameTime);
         }

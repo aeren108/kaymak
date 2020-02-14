@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Kaymak.Screens {
+namespace Kaymak.Screens.Menu {
     class EscapeMenuScreen : Screen {
 
         public EscapeMenuScreen(ScreenManager screenManager, GraphicsDevice graphicsDevice) : base(screenManager, graphicsDevice, true) {

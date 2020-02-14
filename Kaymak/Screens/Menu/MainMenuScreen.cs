@@ -11,17 +11,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Kaymak.UI;
 
-namespace Kaymak.Screens {
-    class MenuScreen : Screen {
+namespace Kaymak.Screens.Menu {
+    class MainMenuScreen : Screen {
         private SpriteFont font;
         private Texture2D button;
 
+        private ComponentManager compManager;
         private List<Component> components; //TODO: add components to this list and handle via this list
         private Button singleplayer;
         private Button multiplayer;
         private Button quit;
 
-        public MenuScreen(ScreenManager screenManager, GraphicsDevice graphicsDevice) : base(screenManager, graphicsDevice, false) {
+        public MainMenuScreen(ScreenManager screenManager, GraphicsDevice graphicsDevice) : base(screenManager, graphicsDevice, false) {
+            compManager = new ComponentManager();
             components = new List<Component>();
         }
 
@@ -29,9 +31,9 @@ namespace Kaymak.Screens {
             font = CM.Load<SpriteFont>("font");
             button = CM.Load<Texture2D>("button");
 
-            singleplayer = new Button(button);
-            multiplayer = new Button(button);
-            quit = new Button(button);
+            singleplayer = new Button();
+            multiplayer = new Button();
+            quit = new Button();
 
             singleplayer.Text = "Singleplayer";
             multiplayer.Text = "Multiplayer";
@@ -45,28 +47,21 @@ namespace Kaymak.Screens {
             multiplayer.Position = new Vector2(graphicsDevice.Viewport.Width / 2 - 16 * 5, graphicsDevice.Viewport.Height / 2 - 16);
             quit.Position = new Vector2(graphicsDevice.Viewport.Width / 2 - 16 * 5, graphicsDevice.Viewport.Height / 2 + 32);
 
-            components.Add(singleplayer);
-            components.Add(multiplayer);
-            components.Add(quit);
-
-            foreach (var c in components)
-                c.LoadContent();
+            compManager.AddComponent(singleplayer);
+            compManager.AddComponent(multiplayer);
+            compManager.AddComponent(quit);
         }
 
         public override void Render(SpriteBatch batch) {
             graphicsDevice.Clear(Color.FloralWhite);
 
             batch.Begin();
-
-            for (int i = 0; i < components.Count; i++) 
-                components[i].Render(batch);
-
+            compManager.Render(batch);
             batch.End();
         }
 
         public override void Update(GameTime gameTime) {
-            for (int i = 0; i < components.Count; i++)
-                components[i].Update(gameTime);
+            compManager.Update(gameTime);
         }
 
         private void ButtonClick(object sender, EventArgs e) {
@@ -74,7 +69,7 @@ namespace Kaymak.Screens {
                 isActive = false;
                 screenManager.AddScreen(new SingleplayerScreen(screenManager, graphicsDevice));
             } else if (sender == multiplayer) {
-                //TODO: Prepare multiplayer screen
+                screenManager.AddScreen(new MultiplayerMenuScreen(screenManager, graphicsDevice));
             } else if (sender == quit) {
                 ExitGame = true;
             }
