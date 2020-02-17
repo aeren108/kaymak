@@ -12,6 +12,19 @@ namespace Kaymak.Entities {
     class Player : Entity {
         private Vector2 Velocity;
         private Vector2 Direction;
+        public Vector2 PositionMP { get { return Position; } set {
+
+                Direction = (value - Position);
+                Direction.Normalize();
+                IsMoving = true;
+
+                Position = value;
+            }
+        }
+
+        public string Username = "";
+        public bool IsPrimary = true;
+        public bool IsMoving = false;
         private float velPerSecond = 150f;
 
         private Animation RightWalk;
@@ -19,12 +32,16 @@ namespace Kaymak.Entities {
         private Animation IdleLeft;
         private Animation IdleRight;
 
-        private Animation CurAnim;
+        public Animation CurAnim;
+        public int AnimNum = 0;
 
         private SoundEffectInstance FootStep;
         private SoundEffectInstance Knockback;
         private SoundEffectInstance Dash;
         public AudioListener Listener;
+
+        private SpriteFont font;
+        private Vector2 usernamePos;
 
         private bool IsKnockbacked = false;
         private Vector2 KnockbackVelocity;
@@ -60,6 +77,7 @@ namespace Kaymak.Entities {
             FootStep = CM.Load<SoundEffect>("footsteps").CreateInstance();
             Knockback = CM.Load<SoundEffect>("knockback").CreateInstance();
             Dash = CM.Load<SoundEffect>("whoosh").CreateInstance();
+            font = CM.Load<SpriteFont>("font");
 
             RightWalk = new Animation(70, 8, 64, 64, 2);
             LeftWalk = new Animation(70, 8, 64, 64, 3);
@@ -82,90 +100,100 @@ namespace Kaymak.Entities {
 
         public override void Render(SpriteBatch batch) {
             batch.Draw(sprite, Position, CurAnim.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f);
+            batch.DrawString(font, Username, usernamePos, Color.White);
         }
 
         public override void Update(GameTime gameTime) {
             KeyboardState keyState = Keyboard.GetState();
             MouseState mouseState = Mouse.GetState();
 
-            if (keyState.IsKeyDown(Keys.W))
-                Direction.Y = -1;
-            else if (keyState.IsKeyDown(Keys.S)) 
-                Direction.Y = 1;
-            else
-                Direction.Y = 0;
-            if (keyState.IsKeyDown(Keys.A)) 
-                Direction.X = -1;
-            else if (keyState.IsKeyDown(Keys.D))
-                Direction.X = 1;
-            else
-                Direction.X = 0;
+            if (IsPrimary) {
+                if (keyState.IsKeyDown(Keys.W))
+                    Direction.Y = -1;
+                else if (keyState.IsKeyDown(Keys.S))
+                    Direction.Y = 1;
+                else
+                    Direction.Y = 0;
+                if (keyState.IsKeyDown(Keys.A))
+                    Direction.X = -1;
+                else if (keyState.IsKeyDown(Keys.D))
+                    Direction.X = 1;
+                else
+                    Direction.X = 0;
 
-            if ((mouseState.LeftButton == ButtonState.Pressed) && dashReady && !IsKnockbacked) {
-                IsDashing = true;
-                Vector2 mouseVec = new Vector2(mouseState.X, mouseState.Y);
-                world.Camera.WorldPosition(ref mouseVec);
+                if ((mouseState.LeftButton == ButtonState.Pressed) && dashReady && !IsKnockbacked) {
+                    IsDashing = true;
+                    Vector2 mouseVec = new Vector2(mouseState.X, mouseState.Y);
+                    world.Camera.WorldPosition(ref mouseVec);
 
-                DashVelocity = mouseVec - new Vector2(Position.X + 32, Position.Y + 32);
-                DashVelocity.Normalize();
-                DashVelocity *= 13f;
-            } 
+                    DashVelocity = mouseVec - new Vector2(Position.X + 32, Position.Y + 32);
+                    DashVelocity.Normalize();
+                    DashVelocity *= 13f;
+                }
 
-            boundBox.X = (int) Position.X + 24;
-            boundBox.Y = (int) Position.Y + 24;
+                boundBox.X = (int)Position.X + 24;
+                boundBox.Y = (int)Position.Y + 24;
 
-            Velocity = Direction * velPerSecond * (float) gameTime.ElapsedGameTime.TotalSeconds;
+                Velocity = Direction * velPerSecond * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (!dashReady) {
-                dashCooldownTimer += gameTime.ElapsedGameTime.TotalSeconds;
-                if (dashCooldownTimer >= dashCooldown) {
-                    dashReady = true;
-                    dashCooldownTimer = 0;
+                if (!dashReady) {
+                    dashCooldownTimer += gameTime.ElapsedGameTime.TotalSeconds;
+                    if (dashCooldownTimer >= dashCooldown) {
+                        dashReady = true;
+                        dashCooldownTimer = 0;
+                    }
+                }
+
+                if (IsDashing) {
+                    dashTimer += gameTime.ElapsedGameTime.TotalSeconds;
+                    Velocity *= 0;
+                    Velocity += DashVelocity;
+                    Direction.X = Velocity.X; Direction.Y = Velocity.Y;
+                    Direction.Normalize();
+
+                    if (dashTimer >= .15f || IsKnockbacked) {
+                        IsDashing = false;
+                        dashReady = false;
+                        dashTimer = 0;
+                    }
+                }
+
+                if (IsKnockbacked) {
+                    knockbackTimer += gameTime.ElapsedGameTime.TotalSeconds;
+                    Velocity *= .3f;
+                    Velocity += KnockbackVelocity;
+
+                    Direction.X = Velocity.X; Direction.Y = Velocity.Y;
+                    Direction.Normalize();
+
+                    if (knockbackTimer >= .3f) {
+                        IsKnockbacked = false;
+                        knockbackTimer = 0;
+                    }
+                }
+
+                if (!CanCollide) {
+                    collisionTimer += gameTime.ElapsedGameTime.TotalSeconds;
+
+                    if (collisionTimer >= collisionCooldown) {
+                        CanCollide = true;
+                        collisionTimer = 0;
+                    }
+                }
+
+                HandleTileCollision();
+                HandleEntityCollision();
+                HandleSoundEffects();
+                SetAnimations();
+
+                if (Velocity.X != 0 || Velocity.Y != 0) {
+                    IsMoving = true;
+                } else {
+                    IsMoving = false;
                 }
             }
 
-            if (IsDashing) {
-                dashTimer += gameTime.ElapsedGameTime.TotalSeconds;
-                Velocity *= 0;
-                Velocity += DashVelocity;
-                Direction.X = Velocity.X; Direction.Y = Velocity.Y;
-                Direction.Normalize();
-
-                if (dashTimer >= .15f || IsKnockbacked) {
-                    IsDashing = false;
-                    dashReady = false;
-                    dashTimer = 0;
-                }
-            }
-
-            if (IsKnockbacked) {
-                knockbackTimer += gameTime.ElapsedGameTime.TotalSeconds;
-                Velocity *= .3f;
-                Velocity += KnockbackVelocity;
-
-                Direction.X = Velocity.X; Direction.Y = Velocity.Y;
-                Direction.Normalize();
-
-                if (knockbackTimer >= .3f) {
-                    IsKnockbacked = false;
-                    knockbackTimer = 0;
-                }
-            }
-
-            if (!CanCollide) {
-                collisionTimer += gameTime.ElapsedGameTime.TotalSeconds;
-
-                if (collisionTimer >= collisionCooldown) {
-                    CanCollide = true;
-                    collisionTimer = 0;
-                }
-            }
-
-            HandleTileCollision();
-            HandleEntityCollision();
-            HandleSoundEffects();
-            SetAnimations();
-            
+            usernamePos = new Vector2(Position.X - font.MeasureString(Username).X / 2 + 32, Position.Y - font.MeasureString(Username).Y + 5);
             Listener.Position = new Vector3(Position.X + 32, Position.Y + 32, 0);
 
             Position += Velocity;
@@ -283,28 +311,54 @@ namespace Kaymak.Entities {
             if (!IsKnockbacked) {
                 if (Direction.X > 0) {
                     CurAnim = RightWalk;
+                    AnimNum = 2;
                 } else if (Direction.X < 0) {
                     CurAnim = LeftWalk;
+                    AnimNum = 3;
                 } else {
                     if (Direction.Y == 0) {
-                        if (CurAnim == LeftWalk)
+                        if (CurAnim == LeftWalk) {
                             CurAnim = IdleLeft;
-                        else if (CurAnim == RightWalk)
+                            AnimNum = 1;
+                        } else if (CurAnim == RightWalk) {
                             CurAnim = IdleRight;
+                            AnimNum = 2;
+                        }
                     }
                 }
                 if (Direction.Y > 0 || Direction.Y < 0) {
-                    if (CurAnim == IdleLeft)
+                    if (CurAnim == IdleLeft) {
                         CurAnim = LeftWalk;
-                    else if (CurAnim == IdleRight)
+                        AnimNum = 3;
+                    } else if (CurAnim == IdleRight) {
                         CurAnim = RightWalk;
+                        AnimNum = 2;
+                    }
                 }
             } else {
-                if (CurAnim == LeftWalk)
+                if (CurAnim == LeftWalk) {
                     CurAnim = IdleLeft;
-                else if (CurAnim == RightWalk)
-                    CurAnim = RightWalk;
+                    AnimNum = 1;
+                } else if (CurAnim == RightWalk) {
+                    CurAnim = IdleRight;
+                    AnimNum = 0;
+                }
             }
+        }
+
+        public Animation GetAnimByAnimNum(int animNum) {
+            switch (animNum) {
+                case 0:
+                    return IdleRight;                   
+                case 1:
+                    return IdleLeft;
+                case 2:
+                    return RightWalk;
+                case 3:
+                    return LeftWalk;
+            }
+
+            return IdleLeft;
         }
     }
 }

@@ -67,7 +67,7 @@ namespace Kaymak.Screens.Menu {
 
         public void HandleClicks(object sender, EventArgs args) {
             if (sender == connect) {
-                screenManager.AddScreen(new MultiplayerScreen(screenManager, graphicsDevice));
+                screenManager.AddScreen(new MultiplayerScreen(new string[] { username.Text.Trim(), host.Text.Trim() }, screenManager, graphicsDevice));
             } else if (sender == back) {
                 screenManager.RemoveCurrent();
             }

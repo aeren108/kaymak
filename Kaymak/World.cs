@@ -19,7 +19,7 @@ namespace Kaymak {
         public ScreenShaker Shaker;
 
         public List<Entity> entities;
-        public Entity player;
+        public Player player;
 
         private GraphicsDevice graphics;
         private Song gameTheme;
@@ -32,6 +32,8 @@ namespace Kaymak {
 
         private Random random = new Random();
         private bool canPress;
+
+        public bool singleplayer;
 
         public World(GraphicsDevice graphicsDevice) {
             this.graphics = graphicsDevice;
@@ -111,41 +113,43 @@ namespace Kaymak {
                 MediaPlayer.Pause();
             else if (MediaPlayer.Volume != 0 && MediaPlayer.State == MediaState.Paused)
                 MediaPlayer.Resume();
-
-            //generating fireballs every 0.2 seconds
-            if (fireballTimer >= 0.2f) {
-                fireballTimer = 0;
+            
+            if (singleplayer) { 
+                //generating fireballs every 0.2 seconds
+                if (fireballTimer >= 0.2f) {
+                    fireballTimer = 0;
                 
-                for (int i = 0; i < 2; i++) {
-                    int dir = random.Next(0, 2);
-                    Fireball fb = null;
+                    for (int i = 0; i < 2; i++) {
+                        int dir = random.Next(0, 2);
+                        Fireball fb = null;
 
-                    if (dir == 0) 
-                        fb = new Fireball(this, FireballDirection.HORIZONTAL);
-                    else if (dir == 1)
-                        fb = new Fireball(this, FireballDirection.VERTICAL);
+                        if (dir == 0) 
+                            fb = new Fireball(this, FireballDirection.HORIZONTAL);
+                        else if (dir == 1)
+                            fb = new Fireball(this, FireballDirection.VERTICAL);
 
-                    fb.LoadContent();
-                    entities.Insert(0, fb);
+                        fb.LoadContent();
+                        entities.Insert(0, fb);
+                    }
+                    //Console.WriteLine(entities.Count);
                 }
-                //Console.WriteLine(entities.Count);
-            }
 
-            if (laserTimer >= laserTreshold) {
-                for (int i = 0; i < 2; i++) {
-                    int dir = random.Next(0, 2);
-                    Laser l = null;
+                if (laserTimer >= laserTreshold) {
+                    for (int i = 0; i < 2; i++) {
+                        int dir = random.Next(0, 2);
+                        Laser l = null;
 
-                    if (dir == 0)
-                        l = new Laser(this, LaserDirection.HORIZONTAL);
-                    else if (dir == 1)
-                        l = new Laser(this, LaserDirection.VERTICAL);
+                        if (dir == 0)
+                            l = new Laser(this, LaserDirection.HORIZONTAL);
+                        else if (dir == 1)
+                            l = new Laser(this, LaserDirection.VERTICAL);
 
-                    l.LoadContent();
-                    entities.Add(l);
+                        l.LoadContent();
+                        entities.Add(l);
 
-                    laserTreshold = random.NextDouble() * (1.5d - 0.8d) + 0.8d;
-                    laserTimer = 0;
+                        laserTreshold = random.NextDouble() * (1.5d - 0.8d) + 0.8d;
+                        laserTimer = 0;
+                    }
                 }
             }
 
